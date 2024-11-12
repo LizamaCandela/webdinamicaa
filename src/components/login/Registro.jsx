@@ -1,62 +1,67 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  StyleSheet 
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const LoginScreen = () => {
-  return (
-    <View>
-      <Text>Login</Text>
-      <Button title="Ir a Registro" onPress={() => navigation.navigate('Registro')} />
-    </View>
-  );
-};
-
 const RegisterScreen = () => {
+  const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [telefono, setTelefono] = useState('');
   const [contraseña, setContraseña] = useState('');
 
   const handleRegister = () => {
-    // Aquí puedes manejar el registro, por ejemplo, enviando los datos a un servidor
     console.log('Email:', email);
     console.log('Teléfono:', telefono);
     console.log('Contraseña:', contraseña);
+    navigation.navigate('Login');
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registrarse</Text>
       
-      <Text>Email</Text>
       <TextInput
         style={styles.input}
         value={email}
         onChangeText={setEmail}
         placeholder="Ingrese su email"
         keyboardType="email-address"
-        
       />
       
-      <Text>Teléfono</Text>
       <TextInput
         style={styles.input}
         value={telefono}
         onChangeText={setTelefono}
         placeholder="Ingrese su telefono"
-       keyboardType="phone-pad"
+        keyboardType="phone-pad"
       />
       
-      <Text>Contraseña</Text>
       <TextInput
         style={styles.input}
         value={contraseña}
         onChangeText={setContraseña}
         placeholder="Ingrese la contraseña"
         secureTextEntry={true}
-        
       />
       
-      <Button title="Crear Cuenta" />
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={handleRegister}
+      >
+        <Text style={styles.buttonText}>Registrarse</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity 
+        style={styles.loginButton}
+        onPress={() => navigation.navigate('Login')}
+      >
+        <Text style={styles.loginText}>¿Ya tienes cuenta? Inicia sesión</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -64,31 +69,44 @@ const RegisterScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 100,
-    backgroundColor: 'grey',
-    justifyContent: 'center', //eje Y
-    alignItems: 'center', //eje X
-   
+    padding: 20,
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    textAlign: 'center',
-    width: '100%',
+    marginBottom: 20,
   },
   input: {
+    width: '100%',
     height: 40,
-    borderColor: 'black',
+    borderColor: 'gray',
     borderWidth: 1,
-    marginBottom: 20,
+    marginBottom: 10,
     paddingHorizontal: 10,
-    borderRadius: 20,
+    borderRadius: 5,
   },
-  Button: {
-   backgroundColor: 'blue',
-   borderRadius: 20,
-
-
+  button: {
+    backgroundColor: '#007AFF',
+    padding: 10,
+    borderRadius: 5,
+    width: '100%',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  loginButton: {
+    marginTop: 20,
+    padding: 10,
+  },
+  loginText: {
+    color: '#007AFF',
+    textAlign: 'center',
   },
 });
 

@@ -1,17 +1,17 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import MenuComponentes from './src/components/menu/botones';
-import AjustesComponent from './src/components/ajuste/Botones2';
-import RegisterScreen from './src/components/login/Registro';
-import LoginScreen from './src/components/login/Inicio';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import MapComponent from './src/components/mapa/Map';
+import Login from './src/components/login/Inicio';
+import Registro from './src/components/login/Registro';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      {<MapComponent/>}
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Registro" component={Registro} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
-}
+} 
