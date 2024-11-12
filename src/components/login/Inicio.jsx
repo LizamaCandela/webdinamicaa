@@ -1,14 +1,27 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase';
 
-const LoginScreen = () => {
-  const [username, setUsername] = useState('');
+export default function LoginScreen () {
+  
+  const [userData, setUserData] = useState({
+    email: "",
+    password: "",
+  });
+  const handleChange = (name, value) => {
+    setUserData({...userData, [name]: value});
+  };
+
+
+  /*const LoginScreen = () => {
+    const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
     // TO DO: Implement login logic here
     console.log('Login button pressed');
-  };
+  };*/
 
   return (
     <View style={styles.container}>
@@ -57,4 +70,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+//export default LoginScreen;
