@@ -8,7 +8,8 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Picker 
+  Picker,
+  FlatList 
 } from "react-native";
 import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
 import { db } from "../../firebase/firebase.jsx";
@@ -39,6 +40,10 @@ const Restaurantes = () => {
   useEffect(() => {
     cargarRestaurantes();
   }, [municipioSeleccionado]);
+
+  const handleMunicipioChange = (value) => {
+    setMunicipioSeleccionado(value);
+  };
 
   const cargarRestaurantes = async () => {
     if (municipioSeleccionado === "Seleccione un municipio") {
@@ -112,6 +117,39 @@ const Restaurantes = () => {
     setRestauranteSeleccionado(restaurante);
   };
 
+  const renderRestaurante = ({ item: restaurante }) => (
+    <TouchableOpacity 
+      style={styles.card}
+      onPress={() => handleRestaurantePress(restaurante)}
+    >
+      {restaurante.imagen ? (
+        <Image 
+          source={{ uri: restaurante.imagen }} 
+          style={styles.cardImage}
+          resizeMode="cover"
+        />
+      ) : (
+        <View style={[styles.cardImage, styles.noImage]}>
+          <Text style={styles.noImageText}>Sin imagen</Text>
+        </View>
+      )}
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle} numberOfLines={1}>
+          {restaurante.nombre}
+        </Text>
+        <Text style={styles.cardText} numberOfLines={1}>
+          {restaurante.direccion}
+        </Text>
+        <Text style={styles.cardText} numberOfLines={1}>
+          {restaurante.horario}
+        </Text>
+        <Text style={styles.cardCategory}>
+          {restaurante.categoria}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   if (restauranteSeleccionado) {
     return (
       <RestauranteDetalle 
@@ -131,64 +169,47 @@ const Restaurantes = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.selectorContainer}>
-        <Picker
-          selectedValue={municipioSeleccionado}
-          style={styles.picker}
-          onValueChange={(itemValue) => setMunicipioSeleccionado(itemValue)}
-        >
-          {municipiosNeuquen.map((municipio) => (
-            <Picker.Item key={municipio} label={municipio} value={municipio} />
-          ))}
-        </Picker>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Restaurantes</Text>
+        <Text style={styles.headerSubtitle}>Descubre los mejores lugares</Text>
+        
+        <View style={styles.pickerContainer}>
+          <View style={styles.pickerWrapper}>
+            <Picker
+              selectedValue={municipioSeleccionado}
+              onValueChange={handleMunicipioChange}
+              style={styles.picker}
+            >
+              {municipiosNeuquen.map((municipio) => (
+                <Picker.Item 
+                  key={municipio} 
+                  label={municipio} 
+                  value={municipio}
+                />
+              ))}
+            </Picker>
+          </View>
+        </View>
       </View>
 
-      <View style={styles.busquedaContainer}>
-        <TextInput
-          style={styles.busquedaInput}
-          placeholder="Buscar restaurante..."
-          value={busqueda}
-          onChangeText={setBusqueda}
-        />
-      </View>
+      {error && (
+        <Text style={styles.error}>{error}</Text>
+      )}
 
       {cargando ? (
-        <View style={styles.centeredContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.cargandoText}>Cargando restaurantes...</Text>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Buscando restaurantes...</Text>
         </View>
       ) : (
-        <ScrollView style={styles.scrollView}>
-          {restaurantesFiltrados.length > 0 ? (
-            restaurantesFiltrados.map(restaurante => (
-              <TouchableOpacity 
-                key={restaurante.id} 
-                style={styles.restauranteCard}
-                onPress={() => handleRestaurantePress(restaurante)}
-              >
-                <Image
-                  source={{ uri: restaurante.imagen || 'https://via.placeholder.com/150' }}
-                  style={styles.restauranteImagen}
-                />
-                <View style={styles.restauranteInfo}>
-                  <Text style={styles.nombre}>{restaurante.nombre}</Text>
-                  <Text style={styles.categoria}>{restaurante.categoria}</Text>
-                  <Text style={styles.direccion}>{restaurante.direccion}</Text>
-                  <Text style={styles.horario}>{restaurante.horario}</Text>
-                  <Text style={styles.telefono}>{restaurante.telefono}</Text>
-                </View>
-              </TouchableOpacity>
-            ))
-          ) : (
-            <View style={styles.noResultados}>
-              <Text style={styles.noResultadosText}>
-                {municipioSeleccionado === "Seleccione un municipio" 
-                  ? "Por favor, seleccione un municipio"
-                  : "No hay restaurantes disponibles en este municipio"}
-              </Text>
-            </View>
-          )}
-        </ScrollView>
+        <FlatList
+          data={restaurantes}
+          renderItem={renderRestaurante}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.grid}
+          showsVerticalScrollIndicator={false}
+        />
       )}
     </View>
   );
@@ -197,96 +218,129 @@ const Restaurantes = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  selectorContainer: {
     backgroundColor: '#fff',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+  },
+  header: {
+    backgroundColor: '#2C3E50',
+    paddingTop: 20,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#E8E8E8',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  pickerContainer: {
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  pickerWrapper: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    overflow: 'hidden',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   picker: {
-    height: 50,
+    height: 45,
     width: '100%',
   },
-  centeredContainer: {
+  grid: {
+    padding: 15,
+  },
+  row: {
+    justifyContent: 'space-between',
+    paddingHorizontal: 8,
+  },
+  card: {
+    width: '48%',
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    marginVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+    overflow: 'hidden',
+  },
+  cardImage: {
+    width: '100%',
+    height: 130,
+  },
+  noImage: {
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noImageText: {
+    color: '#999',
+    fontSize: 12,
+  },
+  cardContent: {
+    padding: 12,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    marginBottom: 4,
+  },
+  cardText: {
+    fontSize: 12,
+    color: '#7F8C8D',
+    marginBottom: 2,
+  },
+  cardCategory: {
+    fontSize: 12,
+    color: '#E74C3C',
+    marginTop: 4,
+    fontWeight: '500',
+  },
+  loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
   },
-  busquedaContainer: {
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  busquedaInput: {
-    backgroundColor: '#f0f0f0',
-    padding: 12,
-    borderRadius: 8,
+  loadingText: {
     fontSize: 16,
-  },
-  scrollView: {
-    flex: 1,
-    padding: 16,
-  },
-  restauranteCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 16,
-    overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  restauranteImagen: {
-    width: '100%',
-    height: 200,
-  },
-  restauranteInfo: {
-    padding: 16,
-  },
-  nombre: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
-  },
-  categoria: {
-    fontSize: 14,
-    color: '#007AFF',
-    marginBottom: 8,
-  },
-  direccion: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  horario: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  telefono: {
-    fontSize: 14,
-    color: '#666',
-  },
-  noResultados: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  noResultadosText: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+    color: '#7F8C8D',
   },
   error: {
-    color: 'red',
-    fontSize: 16,
+    color: '#E74C3C',
+    padding: 20,
     textAlign: 'center',
+    backgroundColor: '#FADBD8',
+    margin: 10,
+    borderRadius: 8,
   }
 });
 
