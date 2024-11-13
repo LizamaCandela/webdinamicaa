@@ -14,15 +14,6 @@ export default function Login () {
     setUserData({...userData, [name]: value});
   };
 
-
-  /*const LoginScreen = () => {
-    const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleLogin = () => {
-    // TO DO: Implement login logic here
-    console.log('Login button pressed');
-  };*/
   const handleSubmit = async () => {
     const {email, password} = userData;
     try {
@@ -30,10 +21,10 @@ export default function Login () {
       const user = userCredential.user;
       console.log(`Usuario logueado: ${user.email}`);
       alert(`Inicio de sesión exitoso: ${user.email}`);
-      router.push('/Registro');
+      navigation.navigate('Registro');
 
     } catch (error) {
-      console.log('Error al iniciar sesión');
+      console.log('Error al iniciar sesión:', error.message);
       alert('Error al iniciar sesión')
     }
   };
@@ -48,6 +39,8 @@ export default function Login () {
         placeholder="Email"
         onChangeText={(value) => handleChange('email', value)}
         value={userData.email}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
@@ -56,7 +49,13 @@ export default function Login () {
         onChangeText={(value) => handleChange('password', value)}
         value={userData.password}
       />
-      <Button  title="iniciar" onPress={handleSubmit} />
+      <TouchableOpacity 
+        style={styles.loginButton}
+        onPress={handleSubmit}
+      >
+        <Text style={styles.loginText}>Iniciar Sesión</Text>
+      </TouchableOpacity>
+      
       <TouchableOpacity 
         style={styles.registerButton}
         onPress={() => navigation.navigate('Registro')}
@@ -99,6 +98,17 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     textAlign: 'center',
   },
+  loginButton: {
+    backgroundColor: '#007AFF',
+    padding: 15,
+    borderRadius: 5,
+    width: '80%',
+    marginTop: 10,
+  },
+  loginText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
-
-//export default LoginScreen;
