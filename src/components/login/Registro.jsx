@@ -8,7 +8,7 @@ import {
   Alert 
 } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../../firebase';
+import { auth } from "../../firebase/firebase.jsx";
 import { useNavigation } from '@react-navigation/native';
 
 const Registro = () => {
