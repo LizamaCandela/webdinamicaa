@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
 import { db } from "../../firebase/firebase.jsx";
+import RestauranteDetalle from './RestauranteDetalle';
 
 const municipiosNeuquen = [
   "Seleccione un municipio",
@@ -33,6 +34,7 @@ const Restaurantes = () => {
   const [error, setError] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [municipioSeleccionado, setMunicipioSeleccionado] = useState("Seleccione un municipio");
+  const [restauranteSeleccionado, setRestauranteSeleccionado] = useState(null);
 
   useEffect(() => {
     cargarRestaurantes();
@@ -47,24 +49,53 @@ const Restaurantes = () => {
 
     try {
       setCargando(true);
+      console.log('1. Iniciando carga para municipio:', municipioSeleccionado);
+
       const restaurantesRef = collection(db, "restaurantes");
+      console.log('2. Referencia a colección creada');
+
+      // Obtener TODOS los documentos primero para debug
+      const todosLosRestaurantes = await getDocs(collection(db, "restaurantes"));
+      console.log('3. TODOS los restaurantes:');
+      todosLosRestaurantes.forEach(doc => {
+        console.log('Documento:', {
+          id: doc.id,
+          municipio: doc.data().municipio,
+          datos: doc.data()
+        });
+      });
+
       const q = query(
         restaurantesRef,
         where("municipio", "==", municipioSeleccionado),
         orderBy("nombre")
       );
-      
+      console.log('4. Query creada para municipio:', municipioSeleccionado);
+
       const querySnapshot = await getDocs(q);
-      const restaurantesData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      
+      console.log('5. Documentos encontrados:', querySnapshot.size);
+
+      const restaurantesData = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        console.log('6. Procesando documento:', { id: doc.id, ...data });
+        return {
+          id: doc.id,
+          ...data
+        };
+      });
+
+      console.log('7. Datos finales:', restaurantesData);
       setRestaurantes(restaurantesData);
       setCargando(false);
+
     } catch (error) {
-      console.error("Error al cargar restaurantes:", error);
-      setError("Error al cargar los restaurantes");
+      console.error('ERROR DETALLADO:', {
+        mensaje: error.message,
+        codigo: error.code,
+        nombre: error.name,
+        stack: error.stack
+      });
+      setError(`Error al cargar los restaurantes: ${error.message}`);
       setCargando(false);
     }
   };
@@ -76,6 +107,19 @@ const Restaurantes = () => {
         rest.categoria.toLowerCase().includes(busqueda.toLowerCase())
       )
     : restaurantes;
+
+  const handleRestaurantePress = (restaurante) => {
+    setRestauranteSeleccionado(restaurante);
+  };
+
+  if (restauranteSeleccionado) {
+    return (
+      <RestauranteDetalle 
+        restaurante={restauranteSeleccionado}
+        onBack={() => setRestauranteSeleccionado(null)}
+      />
+    );
+  }
 
   if (error) {
     return (
@@ -120,6 +164,7 @@ const Restaurantes = () => {
               <TouchableOpacity 
                 key={restaurante.id} 
                 style={styles.restauranteCard}
+                onPress={() => handleRestaurantePress(restaurante)}
               >
                 <Image
                   source={{ uri: restaurante.imagen || 'https://via.placeholder.com/150' }}
