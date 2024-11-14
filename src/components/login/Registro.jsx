@@ -49,7 +49,7 @@ const RegisterScreen = () => {
       });
 
       Alert.alert('Éxito', 'Registro completado correctamente');
-      navigation.navigate('Login');
+      navigation.navigate('Inicio');
     } catch (error) {
       console.error('Error:', error);
       let errorMessage = 'Error al registrar usuario';
@@ -119,7 +119,7 @@ const RegisterScreen = () => {
 
         <TouchableOpacity 
           style={styles.loginButton}
-          onPress={() => navigation.navigate('Login')}
+          onPress={() => navigation.navigate('Inicio')}
         >
           <Text style={styles.loginText}>¿Ya tienes cuenta? Inicia sesión</Text>
         </TouchableOpacity>

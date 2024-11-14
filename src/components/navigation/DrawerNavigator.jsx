@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import { auth } from '../../firebase/firebase';
+import { signOut } from 'firebase/auth';
+import { useNavigation } from '@react-navigation/native';
+import md5 from 'md5';
 
 import Restaurantes from '../restaurantes/Restaurantes';
 import Mapa from '../mapa/Mapa';
@@ -13,35 +17,70 @@ import Hotel from '../hotel/Hotel';
 const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = (props) => {
-  const usuario = {
-    nombre: "Usuario",
-    email: "usuario@email.com",
-    foto: null // URL de la foto del usuario si existe
+  const navigation = useNavigation();
+  const [userData, setUserData] = useState({
+    email: '',
+    displayName: 'Usuario'
+  });
+
+  useEffect(() => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      setUserData({
+        email: currentUser.email,
+        displayName: currentUser.displayName || 'Usuario'
+      });
+    }
+  }, []);
+
+  const gravatarUrl = userData.email ? 
+    `https://www.gravatar.com/avatar/${md5(userData.email.toLowerCase())}?d=identicon&s=200` : 
+    null;
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Inicio' }],
+      });
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo cerrar sesión');
+    }
   };
 
   return (
-    <DrawerContentScrollView {...props}>
-      <View style={styles.drawerHeader}>
-        <View style={styles.profileContainer}>
-          {usuario.foto ? (
+    <View style={{ flex: 1, justifyContent: 'space-between' }}>
+      <DrawerContentScrollView {...props}>
+        <View style={styles.drawerHeader}>
+          {gravatarUrl ? (
             <Image 
-              source={{ uri: usuario.foto }}
+              source={{ uri: gravatarUrl }} 
               style={styles.profileImage}
             />
           ) : (
             <View style={styles.profileImagePlaceholder}>
-              <Ionicons name="person" size={40} color="#fff" />
+              <Text style={styles.profileImagePlaceholderText}>
+                {userData.displayName?.charAt(0)?.toUpperCase() || 'U'}
+              </Text>
             </View>
           )}
+          <Text style={styles.profileName}>{userData.displayName}</Text>
+          <Text style={styles.profileEmail}>{userData.email}</Text>
         </View>
-        <Text style={styles.profileName}>{usuario.nombre}</Text>
-        <Text style={styles.profileEmail}>{usuario.email}</Text>
+        <DrawerItemList {...props} />
+      </DrawerContentScrollView>
+      
+      <View style={styles.signOutContainer}>
+        <TouchableOpacity 
+          style={styles.signOutButton}
+          onPress={handleSignOut}
+        >
+          <Ionicons name="log-out-outline" size={24} color="#FF3B30" />
+          <Text style={styles.signOutText}>Cerrar Sesión</Text>
+        </TouchableOpacity>
       </View>
-      <DrawerItemList {...props} />
-      <View style={styles.drawerFooter}>
-        <Text style={styles.footerText}>Versión 1.0.0</Text>
-      </View>
-    </DrawerContentScrollView>
+    </View>
   );
 };
 
@@ -113,22 +152,22 @@ const DrawerNavigator = () => {
         }}
       />
       <Drawer.Screen 
-        name="Ajustes" 
-        component={Ajustes}
-        options={{
-          title: 'Ajustes',
-          drawerIcon: ({color}) => (
-            <Ionicons name="settings-outline" size={24} color={color} />
-          )
-        }}
-      />
-      <Drawer.Screen 
         name="Hotel" 
         component={Hotel}
         options={{
           title: 'Hoteles',
           drawerIcon: ({color}) => (
             <Ionicons name="business" size={24} color={color} />
+          )
+        }}
+      />
+      <Drawer.Screen 
+        name="Ajustes" 
+        component={Ajustes}
+        options={{
+          title: 'Ajustes',
+          drawerIcon: ({color}) => (
+            <Ionicons name="settings-outline" size={24} color={color} />
           )
         }}
       />
@@ -145,21 +184,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C3E50',
     alignItems: 'center',
   },
-  profileContainer: {
-    marginBottom: 10,
-  },
   profileImage: {
     width: 80,
     height: 80,
     borderRadius: 40,
+    marginBottom: 10,
+    backgroundColor: '#34495E',
   },
   profileImagePlaceholder: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#34495E',
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 10,
+  },
+  profileImagePlaceholderText: {
+    color: '#fff',
+    fontSize: 32,
+    fontWeight: 'bold',
   },
   profileName: {
     color: '#fff',
@@ -177,15 +221,22 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 10,
   },
-  drawerFooter: {
-    padding: 20,
+  signOutContainer: {
     borderTopWidth: 1,
     borderTopColor: '#ccc',
+    marginTop: 'auto',
   },
-  footerText: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
+  signOutButton: {
+    backgroundColor: '#2C3E50',
+    padding: 10,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  signOutText: {
+    color: '#FF3B30',
+    marginLeft: 32,
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 

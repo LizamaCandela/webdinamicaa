@@ -8,16 +8,17 @@ import {
   Alert 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
 
 const InicioScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [nombre, setNombre] = useState('');
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    if (!email || !password || !nombre) {
       Alert.alert('Error', 'Por favor complete todos los campos');
       return;
     }
@@ -28,6 +29,11 @@ const InicioScreen = () => {
         email.trim(),
         password
       );
+      
+      await updateProfile(userCredential.user, {
+        displayName: nombre
+      });
+      
       console.log('Login exitoso:', userCredential.user.email);
       navigation.navigate('MapComponent');
     } catch (error) {
@@ -55,6 +61,15 @@ const InicioScreen = () => {
     <View style={styles.container}>
       <View style={styles.formContainer}>
         <Text style={styles.title}>Iniciar Sesión</Text>
+        
+        <TextInput
+          style={styles.input}
+          value={nombre}
+          onChangeText={setNombre}
+          placeholder="Nombre"
+          autoCapitalize="words"
+          placeholderTextColor="#666"
+        />
         
         <TextInput
           style={styles.input}
