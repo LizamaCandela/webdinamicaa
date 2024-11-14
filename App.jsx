@@ -1,15 +1,23 @@
-import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import DrawerNavigator from './src/components/navigation/DrawerNavigator';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Login from './src/components/login/Inicio';
+import Registro from './src/components/login/Registro';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer>
-        <DrawerNavigator />
-      </NavigationContainer>
-    </GestureHandlerRootView>
+    <NavigationContainer>
+      <Stack.Navigator 
+        initialRouteName="Login"
+        screenOptions={{
+          headerShown: false
+        }}
+      >
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Registro" component={Registro} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-}
+} 

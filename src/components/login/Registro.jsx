@@ -8,6 +8,8 @@ import {
   Alert 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase/firebase';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -15,7 +17,7 @@ const RegisterScreen = () => {
   const [contraseña, setContraseña] = useState('');
   const [confirmarContraseña, setConfirmarContraseña] = useState('');
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!email || !contraseña || !confirmarContraseña) {
       Alert.alert('Error', 'Por favor complete todos los campos');
       return;
@@ -26,7 +28,29 @@ const RegisterScreen = () => {
       return;
     }
 
-    Alert.alert('Éxito', 'Registro completado correctamente');
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        contraseña
+      );
+      Alert.alert('Éxito', 'Registro completado correctamente');
+      navigation.navigate('Login');
+    } catch (error) {
+      let errorMessage = 'Error al registrar usuario';
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'Este email ya está registrado';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Email inválido';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+          break;
+      }
+      Alert.alert('Error', errorMessage);
+    }
   };
 
   return (

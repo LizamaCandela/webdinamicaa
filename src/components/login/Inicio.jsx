@@ -8,6 +8,8 @@ import {
   Alert 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase/firebase';
 
 export default function Login() {
   const navigation = useNavigation();
@@ -23,14 +25,39 @@ export default function Login() {
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!userData.email || !userData.password) {
       Alert.alert('Error', 'Por favor complete todos los campos');
       return;
     }
 
-    // Aquí iría la lógica de autenticación
-    Alert.alert('Éxito', 'Inicio de sesión exitoso');
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        userData.email,
+        userData.password
+      );
+      Alert.alert('Éxito', 'Inicio de sesión exitoso');
+      // Aquí puedes navegar a la pantalla principal de tu app
+      // navigation.navigate('Home');
+    } catch (error) {
+      let errorMessage = 'Error al iniciar sesión';
+      switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = 'Email inválido';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'No existe una cuenta con este email';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Contraseña incorrecta';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Demasiados intentos fallidos. Intente más tarde';
+          break;
+      }
+      Alert.alert('Error', errorMessage);
+    }
   };
 
   return (
