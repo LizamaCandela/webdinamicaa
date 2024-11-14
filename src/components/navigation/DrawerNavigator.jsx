@@ -8,6 +8,7 @@ import Restaurantes from '../restaurantes/Restaurantes';
 import Mapa from '../mapa/Mapa';
 import Actividad from '../actividad/Actividad';
 import Ajustes from '../ajustes/Ajustes';
+import Hotel from '../hotel/Hotel';
 
 const Drawer = createDrawerNavigator();
 
@@ -79,17 +80,8 @@ const DrawerNavigator = () => {
           fontWeight: '500',
         },
       })}
+      initialRouteName="Mapa"
     >
-      <Drawer.Screen 
-        name="Restaurantes" 
-        component={Restaurantes}
-        options={{
-          title: 'Restaurantes',
-          drawerIcon: ({color}) => (
-            <Ionicons name="restaurant-outline" size={24} color={color} />
-          )
-        }}
-      />
       <Drawer.Screen 
         name="Mapa" 
         component={Mapa}
@@ -97,6 +89,16 @@ const DrawerNavigator = () => {
           title: 'Mapa',
           drawerIcon: ({color}) => (
             <Ionicons name="map-outline" size={24} color={color} />
+          )
+        }}
+      />
+      <Drawer.Screen 
+        name="Restaurantes" 
+        component={Restaurantes}
+        options={{
+          title: 'Restaurantes',
+          drawerIcon: ({color}) => (
+            <Ionicons name="restaurant-outline" size={24} color={color} />
           )
         }}
       />
@@ -117,6 +119,16 @@ const DrawerNavigator = () => {
           title: 'Ajustes',
           drawerIcon: ({color}) => (
             <Ionicons name="settings-outline" size={24} color={color} />
+          )
+        }}
+      />
+      <Drawer.Screen 
+        name="Hotel" 
+        component={Hotel}
+        options={{
+          title: 'Hoteles',
+          drawerIcon: ({color}) => (
+            <Ionicons name="business" size={24} color={color} />
           )
         }}
       />
