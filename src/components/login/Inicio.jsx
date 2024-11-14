@@ -11,22 +11,13 @@ import { useNavigation } from '@react-navigation/native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
 
-export default function Login() {
+const InicioScreen = () => {
   const navigation = useNavigation();
-  const [userData, setUserData] = useState({
-    email: '',
-    password: ''
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleChange = (name, value) => {
-    setUserData({
-      ...userData,
-      [name]: value
-    });
-  };
-
-  const handleSubmit = async () => {
-    if (!userData.email || !userData.password) {
+  const handleLogin = async () => {
+    if (!email || !password) {
       Alert.alert('Error', 'Por favor complete todos los campos');
       return;
     }
@@ -34,13 +25,13 @@ export default function Login() {
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
-        userData.email,
-        userData.password
+        email.trim(),
+        password
       );
-      Alert.alert('Éxito', 'Inicio de sesión exitoso');
-      // Aquí puedes navegar a la pantalla principal de tu app
-      // navigation.navigate('Home');
+      console.log('Login exitoso:', userCredential.user.email);
+      navigation.navigate('MapComponent');
     } catch (error) {
+      console.error('Error de login:', error);
       let errorMessage = 'Error al iniciar sesión';
       switch (error.code) {
         case 'auth/invalid-email':
@@ -63,13 +54,13 @@ export default function Login() {
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>
-        <Text style={styles.title}>Inicio Sesión</Text>
+        <Text style={styles.title}>Iniciar Sesión</Text>
         
         <TextInput
           style={styles.input}
+          value={email}
+          onChangeText={setEmail}
           placeholder="Email"
-          onChangeText={(value) => handleChange('email', value)}
-          value={userData.email}
           keyboardType="email-address"
           autoCapitalize="none"
           placeholderTextColor="#666"
@@ -77,20 +68,20 @@ export default function Login() {
         
         <TextInput
           style={styles.input}
+          value={password}
+          onChangeText={setPassword}
           placeholder="Contraseña"
-          secureTextEntry
-          onChangeText={(value) => handleChange('password', value)}
-          value={userData.password}
+          secureTextEntry={true}
           placeholderTextColor="#666"
         />
         
         <TouchableOpacity 
-          style={styles.button}
-          onPress={handleSubmit}
+          style={styles.button} 
+          onPress={handleLogin}
         >
           <Text style={styles.buttonText}>Iniciar Sesión</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity 
           style={styles.registerButton}
           onPress={() => navigation.navigate('Registro')}
@@ -100,7 +91,9 @@ export default function Login() {
       </View>
     </View>
   );
-}
+};
+
+export default InicioScreen;
 
 const styles = StyleSheet.create({
   container: {

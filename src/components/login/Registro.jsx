@@ -9,17 +9,24 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../../firebase/firebase';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [contraseña, setContraseña] = useState('');
   const [confirmarContraseña, setConfirmarContraseña] = useState('');
+  const [nombreUsuario, setNombreUsuario] = useState('');
 
   const handleRegister = async () => {
-    if (!email || !contraseña || !confirmarContraseña) {
+    if (!email || !contraseña || !confirmarContraseña || !nombreUsuario) {
       Alert.alert('Error', 'Por favor complete todos los campos');
+      return;
+    }
+
+    if (contraseña.length < 6) {
+      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
       return;
     }
 
@@ -34,9 +41,17 @@ const RegisterScreen = () => {
         email,
         contraseña
       );
+
+      await setDoc(doc(db, 'usuarios', userCredential.user.uid), {
+        email: email,
+        password: contraseña,
+        nombreUsuario: nombreUsuario
+      });
+
       Alert.alert('Éxito', 'Registro completado correctamente');
       navigation.navigate('Login');
     } catch (error) {
+      console.error('Error:', error);
       let errorMessage = 'Error al registrar usuario';
       switch (error.code) {
         case 'auth/email-already-in-use':
@@ -48,6 +63,8 @@ const RegisterScreen = () => {
         case 'auth/weak-password':
           errorMessage = 'La contraseña debe tener al menos 6 caracteres';
           break;
+        default:
+          errorMessage = error.message;
       }
       Alert.alert('Error', errorMessage);
     }
@@ -82,6 +99,14 @@ const RegisterScreen = () => {
           onChangeText={setConfirmarContraseña}
           placeholder="Confirmar contraseña"
           secureTextEntry={true}
+          placeholderTextColor="#666"
+        />
+        
+        <TextInput
+          style={styles.input}
+          value={nombreUsuario}
+          onChangeText={setNombreUsuario}
+          placeholder="Ingrese el nombre de usuario"
           placeholderTextColor="#666"
         />
         
