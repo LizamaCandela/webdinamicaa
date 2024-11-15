@@ -10,8 +10,19 @@ const MapComponent = () => {
       <APIProvider apiKey={apiKey}>
         <Map 
           style={styles.map}
-          defaultCenter={{ lat: 40.4168, lng: -3.7038 }}
-          defaultZoom={13}
+          defaultCenter={{ lat: -38.9516, lng: -68.0591 }}
+          defaultZoom={8}
+          options={{
+            restriction: {
+              latLngBounds: {
+                north: -36.0,
+                south: -41.0,
+                east: -68.0,
+                west: -71.0
+              },
+              strictBounds: true
+            }
+          }}
         />
       </APIProvider>
     </View>
