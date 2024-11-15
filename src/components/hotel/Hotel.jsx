@@ -17,16 +17,21 @@ import HotelDetalle from './HotelDetalle';
 
 const municipiosNeuquen = [
   "Seleccione un municipio",
-  "Neuquén Capital",
-  "San Martín de los Andes",
-  "Villa La Angostura",
-  "Junín de los Andes",
   "Aluminé",
-  "Zapala",
-  "Villa Pehuenia",
   "Caviahue-Copahue",
-  "Las Lajas",
-  "Piedra del Águila"
+  "Cultral-Có",
+  "Junín de los Andes",
+  "Loncopué",
+  "Neuquén Capital",
+  "Picún Leufú",
+  "Piedra del Águila",
+  "Plaza Huincul",
+  "Plottier",
+  "San Martín de los Andes",
+  "Villa El Chocón",
+  "Villa La Angostura",
+  "Villa Pehuenia",
+  "Zapala"
 ];
 
 const Hotel = () => {

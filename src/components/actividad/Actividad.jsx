@@ -8,7 +8,8 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Picker 
+  Picker,
+  FlatList 
 } from "react-native";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase/firebase.jsx";
@@ -16,16 +17,21 @@ import ActividadDetalle from './ActividadDetalle';
 
 const municipiosNeuquen = [
   "Seleccione un municipio",
-  "Neuquén Capital",
-  "San Martín de los Andes",
-  "Villa La Angostura",
-  "Junín de los Andes",
   "Aluminé",
-  "Zapala",
-  "Villa Pehuenia",
   "Caviahue-Copahue",
-  "Las Lajas",
-  "Piedra del Águila"
+  "Cultral-Có",
+  "Junín de los Andes",
+  "Loncopué",
+  "Neuquén Capital",
+  "Picún Leufú",
+  "Piedra del Águila",
+  "Plaza Huincul",
+  "Plottier",
+  "San Martín de los Andes",
+  "Villa El Chocón",
+  "Villa La Angostura",
+  "Villa Pehuenia",
+  "Zapala"
 ];
 
 const Actividad = () => {
@@ -62,22 +68,20 @@ const Actividad = () => {
         ...doc.data()
       }));
 
-      actividadesData.sort((a, b) => a.nombre.localeCompare(b.nombre));
       setActividades(actividadesData);
       setCargando(false);
-
     } catch (error) {
-      console.error('ERROR DETALLADO:', error);
+      console.error('ERROR:', error);
       setError(`Error al cargar las actividades: ${error.message}`);
       setCargando(false);
     }
   };
 
   const actividadesFiltradas = busqueda
-    ? actividades.filter(act =>
-        act.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-        act.ubicacion.toLowerCase().includes(busqueda.toLowerCase()) ||
-        act.tipo.toLowerCase().includes(busqueda.toLowerCase())
+    ? actividades.filter(actividad =>
+        actividad.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+        actividad.ubicacion.toLowerCase().includes(busqueda.toLowerCase()) ||
+        actividad.tipo.toLowerCase().includes(busqueda.toLowerCase())
       )
     : actividades;
 
@@ -94,11 +98,29 @@ const Actividad = () => {
     );
   }
 
+  const renderActividad = ({ item: actividad }) => (
+    <TouchableOpacity 
+      style={styles.card}
+      onPress={() => handleActividadPress(actividad)}
+    >
+      <Image 
+        source={{ uri: actividad.imagen || 'https://via.placeholder.com/150' }} 
+        style={styles.cardImage}
+      />
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle}>{actividad.nombre}</Text>
+        <Text style={styles.cardType}>{actividad.tipo}</Text>
+        <Text style={styles.cardLocation}>{actividad.ubicacion}</Text>
+        <Text style={styles.cardPrice}>{actividad.precio}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
+      <View style={styles.header}>
         <Text style={styles.headerTitle}>Actividades</Text>
-        <Text style={styles.headerSubtitle}>Descubre las mejores actividades</Text>
+        <Text style={styles.headerSubtitle}>Descubre experiencias únicas</Text>
         
         <View style={styles.pickerContainer}>
           <Picker
@@ -107,66 +129,45 @@ const Actividad = () => {
             onValueChange={(itemValue) => setMunicipioSeleccionado(itemValue)}
           >
             {municipiosNeuquen.map((municipio) => (
-              <Picker.Item key={municipio} label={municipio} value={municipio} />
+              <Picker.Item 
+                key={municipio} 
+                label={municipio} 
+                value={municipio}
+                style={styles.pickerItem}
+              />
             ))}
           </Picker>
         </View>
       </View>
 
-      <View style={styles.busquedaContainer}>
-        <TextInput
-          style={styles.busquedaInput}
-          placeholder="Buscar actividad..."
-          value={busqueda}
-          onChangeText={setBusqueda}
-        />
-      </View>
-
       {cargando ? (
-        <View style={styles.centeredContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.cargandoText}>Cargando actividades...</Text>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#2C3E50" />
+          <Text style={styles.loadingText}>Cargando actividades...</Text>
         </View>
       ) : error ? (
-        <View style={styles.centeredContainer}>
-          <Text style={styles.error}>{error}</Text>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollView}>
-          <View style={styles.gridContainer}>
-            {actividadesFiltradas.length > 0 ? (
-              <View style={styles.grid}>
-                {actividadesFiltradas.map(actividad => (
-                  <TouchableOpacity 
-                    key={actividad.id} 
-                    style={styles.actividadCard}
-                    onPress={() => handleActividadPress(actividad)}
-                  >
-                    <Image
-                      source={{ uri: actividad.imagen || 'https://via.placeholder.com/150' }}
-                      style={styles.actividadImagen}
-                    />
-                    <View style={styles.actividadInfo}>
-                      <Text style={styles.nombre} numberOfLines={1}>{actividad.nombre}</Text>
-                      <Text style={styles.tipo} numberOfLines={1}>{actividad.tipo}</Text>
-                      <Text style={styles.ubicacion} numberOfLines={1}>{actividad.ubicacion}</Text>
-                      <Text style={styles.horario} numberOfLines={1}>{actividad.horario}</Text>
-                      <Text style={styles.precio} numberOfLines={1}>{actividad.precio}</Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            ) : (
-              <View style={styles.noResultados}>
-                <Text style={styles.noResultadosText}>
-                  {municipioSeleccionado === "Seleccione un municipio" 
-                    ? "Por favor, seleccione un municipio"
-                    : "No hay actividades disponibles en este municipio"}
-                </Text>
-              </View>
-            )}
-          </View>
-        </ScrollView>
+        <FlatList
+          data={actividadesFiltradas}
+          renderItem={renderActividad}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContainer}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                {municipioSeleccionado === "Seleccione un municipio"
+                  ? "Por favor, seleccione un municipio"
+                  : "No hay actividades disponibles en este municipio"}
+              </Text>
+            </View>
+          }
+        />
       )}
     </View>
   );
@@ -177,11 +178,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  headerContainer: {
+  header: {
     backgroundColor: '#2C3E50',
     padding: 20,
+    paddingTop: 40,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
     alignItems: 'center',
-    paddingBottom: 30,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   headerTitle: {
     fontSize: 28,
@@ -191,113 +202,106 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#fff',
+    color: '#E8E8E8',
     marginBottom: 20,
   },
   pickerContainer: {
     width: '90%',
     backgroundColor: '#fff',
-    borderRadius: 8,
+    borderRadius: 10,
+    marginBottom: 10,
     overflow: 'hidden',
   },
   picker: {
-    height: 40,
+    height: 50,
     width: '100%',
   },
-  centeredContainer: {
+  pickerItem: {
+    fontSize: 16,
+  },
+  listContainer: {
+    padding: 10,
+  },
+  row: {
+    justifyContent: 'space-between',
+    marginHorizontal: 10,
+  },
+  card: {
+    width: '48%',
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    marginVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+    overflow: 'hidden',
+  },
+  cardImage: {
+    width: '100%',
+    height: 120,
+    resizeMode: 'cover',
+  },
+  cardContent: {
+    padding: 10,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#2C3E50',
+  },
+  cardType: {
+    fontSize: 14,
+    color: '#007AFF',
+    marginBottom: 4,
+  },
+  cardLocation: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 4,
+  },
+  cardPrice: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#2ECC71',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
-  busquedaContainer: {
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  busquedaInput: {
-    backgroundColor: '#f0f0f0',
-    padding: 12,
-    borderRadius: 8,
+  errorText: {
+    color: '#E74C3C',
     fontSize: 16,
+    textAlign: 'center',
   },
-  scrollView: {
-    flexGrow: 1,
-    padding: 10,
-  },
-  gridContainer: {
+  emptyContainer: {
     flex: 1,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  actividadCard: {
-    width: '48%',
-    marginBottom: 10,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  actividadImagen: {
-    width: '100%',
-    height: 120,
-    resizeMode: 'cover',
-  },
-  actividadInfo: {
-    padding: 8,
-  },
-  nombre: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  tipo: {
-    fontSize: 12,
-    color: '#007AFF',
-    marginBottom: 2,
-  },
-  ubicacion: {
-    fontSize: 11,
-    color: '#666',
-    marginBottom: 2,
-  },
-  horario: {
-    fontSize: 11,
-    color: '#666',
-    marginBottom: 2,
-  },
-  precio: {
-    fontSize: 11,
-    color: '#666',
-  },
-  noResultados: {
-    padding: 20,
+    justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
+    padding: 20,
   },
-  noResultadosText: {
+  emptyText: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
   },
-  error: {
-    color: 'red',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  cargandoText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#666',
-  }
 });
 
 export default Actividad;
