@@ -77,7 +77,7 @@ const ActividadDetalle = ({ actividad, onBack }) => {
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
             <FontAwesome name="map-marker" size={24} color="#2C3E50" />
-            <Text style={styles.infoText}>{actividad.ubicacion || 'Ubicacion' }</Text>
+            <Text style={styles.infoText}>{actividad.ubicación  || 'ubicación ' }</Text>
           </View>
 
           <View style={styles.infoRow}>
@@ -94,7 +94,7 @@ const ActividadDetalle = ({ actividad, onBack }) => {
         <View style={styles.descriptionCard}>
           <Text style={styles.sectionTitle}>Descripción</Text>
           <Text style={styles.descriptionText}>
-            {actividad.descripcion || 'Sin descripción disponible'}
+            {actividad.descripción  || 'descripción '}
           </Text>
         </View>
 
