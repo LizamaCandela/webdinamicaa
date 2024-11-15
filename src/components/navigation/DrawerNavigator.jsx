@@ -13,7 +13,7 @@ import Mapa from '../mapa/Mapa';
 import Actividad from '../actividad/Actividad';
 import Ajustes from '../ajustes/Ajustes';
 import Hotel from '../hotel/Hotel';
-
+import Ayuda from '../ayuda/Ayuda';
 const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = (props) => {
@@ -168,6 +168,16 @@ const DrawerNavigator = () => {
           title: 'Ajustes',
           drawerIcon: ({color}) => (
             <Ionicons name="settings-outline" size={24} color={color} />
+          )
+        }}
+      />
+    <Drawer.Screen 
+        name="Ayuda" 
+        component={Ayuda}
+        options={{
+          title: 'Ayuda',
+          drawerIcon: ({color}) => (
+            <Ionicons name="help-circle-outline" size={24} color={color} />
           )
         }}
       />
