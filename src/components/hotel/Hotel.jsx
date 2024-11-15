@@ -17,23 +17,42 @@ import HotelDetalle from './HotelDetalle';
 
 const municipiosNeuquen = [
   "Seleccione un municipio",
+  "Añelo",
   "Aluminé",
+  "Bajada del Agrio",
+  "Barrancas",
+  "Buta Ranquil",
   "Caviahue-Copahue",
+  "Chos Malal",
   "Cultral-Có",
+  "El Cholar",
+  "El Huecú",
+  "Huinganco",
   "Junín de los Andes",
+  "Las Coloradas",
+  "Las Lajas",
   "Loncopué",
+  "Los Catutos",
+  "Los Miches",
+  "Manzano Amargo",
   "Neuquén Capital",
+  "Paso Aguerre",
   "Picún Leufú",
   "Piedra del Águila",
   "Plaza Huincul",
   "Plottier",
+  "Rincón de los Sauces",
   "San Martín de los Andes",
+  "San Patricio del Chañar",
+  "Senillosa",
+  "Taquimilán",
+  "Tricao Malal",
   "Villa El Chocón",
   "Villa La Angostura",
   "Villa Pehuenia",
+  "Vista Alegre",
   "Zapala"
 ];
-
 const Hotel = () => {
   const [hoteles, setHoteles] = useState([]);
   const [cargando, setCargando] = useState(true);
