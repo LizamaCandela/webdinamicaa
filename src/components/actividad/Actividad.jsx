@@ -94,18 +94,13 @@ const Actividad = () => {
     );
   }
 
-  if (error) {
-    return (
-      <View style={styles.centeredContainer}>
-        <Text style={styles.error}>{error}</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <View style={styles.selectorContainer}>
-        <View style={styles.pickerWrapper}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerTitle}>Actividades</Text>
+        <Text style={styles.headerSubtitle}>Descubre las mejores actividades</Text>
+        
+        <View style={styles.pickerContainer}>
           <Picker
             selectedValue={municipioSeleccionado}
             style={styles.picker}
@@ -131,6 +126,10 @@ const Actividad = () => {
         <View style={styles.centeredContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
           <Text style={styles.cargandoText}>Cargando actividades...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.centeredContainer}>
+          <Text style={styles.error}>{error}</Text>
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.scrollView}>
@@ -176,22 +175,29 @@ const Actividad = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  selectorContainer: {
     backgroundColor: '#fff',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    alignItems: 'center',
   },
-  pickerWrapper: {
-    width: '80%',
-    maxWidth: 300,
+  headerContainer: {
+    backgroundColor: '#2C3E50',
+    padding: 20,
+    alignItems: 'center',
+    paddingBottom: 30,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#fff',
+    marginBottom: 20,
+  },
+  pickerContainer: {
+    width: '90%',
     backgroundColor: '#fff',
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
     overflow: 'hidden',
   },
   picker: {

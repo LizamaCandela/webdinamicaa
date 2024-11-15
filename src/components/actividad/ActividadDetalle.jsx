@@ -1,50 +1,37 @@
 import React from 'react';
-import { 
-  View, 
-  Text, 
-  Image, 
-  StyleSheet, 
-  ScrollView, 
-  TouchableOpacity 
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 
 const ActividadDetalle = ({ actividad, onBack }) => {
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity 
-        style={styles.backButton} 
-        onPress={onBack}
-      >
-        <Text style={styles.backButtonText}>← Volver</Text>
-      </TouchableOpacity>
+      <View style={styles.header}>
+        <Text style={styles.backButton} onPress={onBack}>← Volver</Text>
+        <Text style={styles.title}>{actividad.nombre}</Text>
+      </View>
 
-      <Image
-        source={{ uri: actividad.imagen || 'https://via.placeholder.com/400' }}
-        style={styles.imagen}
-      />
-
-      <View style={styles.contenido}>
-        <Text style={styles.nombre}>{actividad.nombre}</Text>
-        <Text style={styles.tipo}>{actividad.tipo}</Text>
-        
-        <View style={styles.seccion}>
-          <Text style={styles.label}>Ubicación:</Text>
-          <Text style={styles.texto}>{actividad.ubicacion}</Text>
+      <View style={styles.reviewsContainer}>
+        <View style={styles.ratingContainer}>
+          <Text style={styles.tipo}>{actividad.tipo}</Text>
         </View>
 
-        <View style={styles.seccion}>
-          <Text style={styles.label}>Horario:</Text>
-          <Text style={styles.texto}>{actividad.horario}</Text>
+        <View style={styles.reviewCard}>
+          <Text style={styles.reviewAuthor}>Ubicación</Text>
+          <Text style={styles.reviewText}>{actividad.ubicacion}</Text>
         </View>
 
-        <View style={styles.seccion}>
-          <Text style={styles.label}>Precio:</Text>
-          <Text style={styles.texto}>{actividad.precio}</Text>
+        <View style={styles.reviewCard}>
+          <Text style={styles.reviewAuthor}>Horario</Text>
+          <Text style={styles.reviewText}>{actividad.horario}</Text>
         </View>
 
-        <View style={styles.seccion}>
-          <Text style={styles.label}>Descripción:</Text>
-          <Text style={styles.descripcion}>{actividad.descripcion}</Text>
+        <View style={styles.reviewCard}>
+          <Text style={styles.reviewAuthor}>Precio</Text>
+          <Text style={styles.reviewText}>{actividad.precio}</Text>
+        </View>
+
+        <View style={styles.reviewCard}>
+          <Text style={styles.reviewAuthor}>Descripción</Text>
+          <Text style={styles.reviewText}>{actividad.descripcion}</Text>
         </View>
       </View>
     </ScrollView>
@@ -56,43 +43,47 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  backButton: {
+  header: {
     padding: 16,
-    backgroundColor: '#f8f8f8',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
-  backButtonText: {
+  backButton: {
     fontSize: 16,
     color: '#007AFF',
+    marginBottom: 8,
   },
-  imagen: {
-    width: '100%',
-    height: 300,
-    resizeMode: 'cover',
-  },
-  contenido: {
-    padding: 16,
-  },
-  nombre: {
+  title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
+  },
+  reviewsContainer: {
+    padding: 16,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   tipo: {
-    fontSize: 16,
-    color: '#007AFF',
-    marginBottom: 16,
-  },
-  seccion: {
-    marginBottom: 16,
-  },
-  label: {
+    fontSize: 24,
     fontWeight: 'bold',
+    marginRight: 8,
+    color: '#007AFF',
   },
-  texto: {
-    marginBottom: 8,
-  },
-  descripcion: {
+  reviewCard: {
+    backgroundColor: '#f8f8f8',
+    padding: 16,
+    borderRadius: 8,
     marginBottom: 16,
   },
-}); 
+  reviewAuthor: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  reviewText: {
+    marginBottom: 8,
+  }
+});
+
+export default ActividadDetalle; 
