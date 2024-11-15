@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Asegúrate de que ya tienes instalado expo/vector-icons
+import { Ionicons } from '@expo/vector-icons'; 
 
 const Ayuda = () => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content}>
-        {/* Logo o imagen decorativa */}
+        {/* Logo  decorativo */}
         <View style={styles.imageContainer}>
           <View style={styles.iconGroup}>
             <Ionicons name="compass" size={60} color="#2C3E50" />

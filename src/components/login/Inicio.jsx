@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   }
 });
 
-// Estilos para efectos hover en web
+// Estilos para efectos hover 
 if (typeof document !== 'undefined') {
   const style = document.createElement('style');
   style.type = 'text/css';

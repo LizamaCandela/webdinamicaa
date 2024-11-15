@@ -1,4 +1,4 @@
-// Import the functions you need from the SDKs you need
+// Importa las funciones que necesitas de los SDKs que necesitas
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider, updateEmail, updatePassword, onAuthStateChanged } from "firebase/auth";

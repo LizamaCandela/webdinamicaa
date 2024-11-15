@@ -106,7 +106,7 @@ const Actividad = () => {
     : actividades;
 
   const handleActividadPress = (actividad) => {
-    console.log("Actividad seleccionada:", actividad); // Para debug
+    console.log("Actividad seleccionada:", actividad); 
     setActividadSeleccionada(actividad);
   };
 

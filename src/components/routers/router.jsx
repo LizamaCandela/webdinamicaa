@@ -4,7 +4,7 @@ import Login from '../login/Inicio';
 import Registro from '../login/Registro';
 import MapComponent from '../Map/Map';
 
-console.log('Rutas disponibles:', ['Login', 'Registro', 'MapComponent']); // Para debugging
+console.log('Rutas disponibles:', ['Login', 'Registro', 'MapComponent']); 
 
 const Stack = createStackNavigator();
 
