@@ -42,8 +42,8 @@ const RestauranteDetalle = ({ restaurante, onBack }) => {
             <View style={styles.iconContainer}>
               <FontAwesome name="map-marker" size={24} color="#2C3E50" />
             </View>
-            <Text style={styles.infoLabel}>Ubicación:</Text>
-            <Text style={styles.infoText}>{restaurante.ubicacion}</Text>
+            <Text style={styles.infoLabel}>direccion:</Text>
+            <Text style={styles.infoText}>{restaurante.dirrecion}</Text>
           </TouchableOpacity>
 
           <View style={styles.infoRow}>

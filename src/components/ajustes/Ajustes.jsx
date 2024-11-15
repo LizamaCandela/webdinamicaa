@@ -1,41 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const Ajustes = () => {
-  const [notificaciones, setNotificaciones] = React.useState(false);
-  const [modoOscuro, setModoOscuro] = React.useState(false);
-  const [ubicacion, setUbicacion] = React.useState(false);
+  const [notificaciones, setNotificaciones] = useState(false);
+  const [modoOscuro, setModoOscuro] = useState(false);
+  const [ubicacion, setUbicacion] = useState(false);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: modoOscuro ? '#1a1a1a' : '#f5f6fa' }]}>
       {/* Sección de Cuenta */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Cuenta</Text>
+      <View style={[styles.section, { backgroundColor: modoOscuro ? '#2d2d2d' : '#fff' }]}>
+        <Text style={[styles.sectionTitle, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Cuenta</Text>
         <TouchableOpacity style={styles.option}>
           <View style={styles.optionLeft}>
-            <Ionicons name="person-outline" size={24} color="#2C3E50" />
-            <Text style={styles.optionText}>Editar Perfil</Text>
+            <Ionicons name="person-outline" size={24} color={modoOscuro ? '#fff' : '#2C3E50'} />
+            <Text style={[styles.optionText, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Editar Perfil</Text>
           </View>
           <Ionicons name="chevron-forward" size={24} color="#95a5a6" />
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.option}>
           <View style={styles.optionLeft}>
-            <Ionicons name="key-outline" size={24} color="#2C3E50" />
-            <Text style={styles.optionText}>Cambiar Contraseña</Text>
+            <Ionicons name="key-outline" size={24} color={modoOscuro ? '#fff' : '#2C3E50'} />
+            <Text style={[styles.optionText, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Cambiar Contraseña</Text>
           </View>
           <Ionicons name="chevron-forward" size={24} color="#95a5a6" />
         </TouchableOpacity>
       </View>
 
       {/* Sección de Preferencias */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Preferencias</Text>
+      <View style={[styles.section, { backgroundColor: modoOscuro ? '#2d2d2d' : '#fff' }]}>
+        <Text style={[styles.sectionTitle, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Preferencias</Text>
         <View style={styles.option}>
           <View style={styles.optionLeft}>
-            <Ionicons name="notifications-outline" size={24} color="#2C3E50" />
-            <Text style={styles.optionText}>Notificaciones</Text>
+            <Ionicons name="notifications-outline" size={24} color={modoOscuro ? '#fff' : '#2C3E50'} />
+            <Text style={[styles.optionText, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Notificaciones</Text>
           </View>
           <Switch
             value={notificaciones}
@@ -46,8 +46,8 @@ const Ajustes = () => {
 
         <View style={styles.option}>
           <View style={styles.optionLeft}>
-            <Ionicons name="moon-outline" size={24} color="#2C3E50" />
-            <Text style={styles.optionText}>Modo Oscuro</Text>
+            <Ionicons name="moon-outline" size={24} color={modoOscuro ? '#fff' : '#2C3E50'} />
+            <Text style={[styles.optionText, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Modo Oscuro</Text>
           </View>
           <Switch
             value={modoOscuro}
@@ -58,8 +58,8 @@ const Ajustes = () => {
 
         <View style={styles.option}>
           <View style={styles.optionLeft}>
-            <Ionicons name="location-outline" size={24} color="#2C3E50" />
-            <Text style={styles.optionText}>Ubicación</Text>
+            <Ionicons name="location-outline" size={24} color={modoOscuro ? '#fff' : '#2C3E50'} />
+            <Text style={[styles.optionText, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Ubicación</Text>
           </View>
           <Switch
             value={ubicacion}
@@ -70,43 +70,43 @@ const Ajustes = () => {
       </View>
 
       {/* Sección de Idioma */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Idioma</Text>
+      <View style={[styles.section, { backgroundColor: modoOscuro ? '#2d2d2d' : '#fff' }]}>
+        <Text style={[styles.sectionTitle, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Idioma</Text>
         <TouchableOpacity style={styles.option}>
           <View style={styles.optionLeft}>
-            <Ionicons name="language-outline" size={24} color="#2C3E50" />
-            <Text style={styles.optionText}>Cambiar Idioma</Text>
+            <Ionicons name="language-outline" size={24} color={modoOscuro ? '#fff' : '#2C3E50'} />
+            <Text style={[styles.optionText, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Cambiar Idioma</Text>
           </View>
           <View style={styles.optionRight}>
-            <Text style={styles.optionDetail}>Español</Text>
+            <Text style={[styles.optionDetail, { color: modoOscuro ? '#95a5a6' : '#95a5a6' }]}>Español</Text>
             <Ionicons name="chevron-forward" size={24} color="#95a5a6" />
           </View>
         </TouchableOpacity>
       </View>
 
       {/* Sección de Información */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Información</Text>
+      <View style={[styles.section, { backgroundColor: modoOscuro ? '#2d2d2d' : '#fff' }]}>
+        <Text style={[styles.sectionTitle, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Información</Text>
         <TouchableOpacity style={styles.option}>
           <View style={styles.optionLeft}>
-            <Ionicons name="information-circle-outline" size={24} color="#2C3E50" />
-            <Text style={styles.optionText}>Acerca de</Text>
+            <Ionicons name="information-circle-outline" size={24} color={modoOscuro ? '#fff' : '#2C3E50'} />
+            <Text style={[styles.optionText, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Acerca de</Text>
           </View>
           <Ionicons name="chevron-forward" size={24} color="#95a5a6" />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.option}>
           <View style={styles.optionLeft}>
-            <Ionicons name="document-text-outline" size={24} color="#2C3E50" />
-            <Text style={styles.optionText}>Términos y Condiciones</Text>
+            <Ionicons name="document-text-outline" size={24} color={modoOscuro ? '#fff' : '#2C3E50'} />
+            <Text style={[styles.optionText, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Términos y Condiciones</Text>
           </View>
           <Ionicons name="chevron-forward" size={24} color="#95a5a6" />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.option}>
           <View style={styles.optionLeft}>
-            <Ionicons name="shield-checkmark-outline" size={24} color="#2C3E50" />
-            <Text style={styles.optionText}>Política de Privacidad</Text>
+            <Ionicons name="shield-checkmark-outline" size={24} color={modoOscuro ? '#fff' : '#2C3E50'} />
+            <Text style={[styles.optionText, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Política de Privacidad</Text>
           </View>
           <Ionicons name="chevron-forward" size={24} color="#95a5a6" />
         </TouchableOpacity>

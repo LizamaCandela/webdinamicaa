@@ -33,8 +33,8 @@ const HotelDetalle = ({ hotel, onBack }) => {
         <View style={styles.infoContainer}>
           <View style={styles.infoRow}>
             <FontAwesome name="map-marker" size={20} color="#34495E" />
-            <Text style={styles.infoLabel}>Ubicación:</Text>
-            <Text style={styles.infoText}>{hotel.ubicacion || 'No disponible'}</Text>
+            <Text style={styles.infoLabel}>dirrecion:</Text>
+            <Text style={styles.infoText}>{hotel.direccion || 'direccion'}</Text>
           </View>
 
           <View style={styles.infoRow}>
@@ -63,9 +63,9 @@ const HotelDetalle = ({ hotel, onBack }) => {
         </View>
 
         <View style={styles.descriptionContainer}>
-          <Text style={styles.sectionTitle}>Descripción</Text>
+          <Text style={styles.sectionTitle}>descripcion</Text>
           <Text style={styles.descriptionText}>
-            {hotel.descripcion || 'Sin descripción disponible'}
+            {hotel.descripcion || ' descripcion '}
           </Text>
         </View>
 
