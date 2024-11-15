@@ -2,45 +2,25 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
-const FormularioResena = ({ onSubmit, resenaInicial = null }) => {
+const FormularioResenas = ({ onSubmit, resenaInicial = null }) => {
   const [calificacion, setCalificacion] = useState(resenaInicial?.calificacion || 0);
   const [comentario, setComentario] = useState(resenaInicial?.texto || '');
 
-  const handleSubmit = () => {
-    if (calificacion === 0) {
-      alert('Por favor, selecciona una calificación');
-      return;
-    }
-    
-    onSubmit({
-      calificacion,
-      texto: comentario.trim()
-    });
-
-    // Limpiar el formulario si no es una edición
-    if (!resenaInicial) {
-      setCalificacion(0);
-      setComentario('');
-    }
-  };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
-        {resenaInicial ? 'Editar reseña' : 'Escribir una reseña'}
-      </Text>
+      <Text style={styles.titulo}>Escribir una reseña</Text>
       
-      <View style={styles.starsContainer}>
-        {[1, 2, 3, 4, 5].map((star) => (
+      <View style={styles.estrellas}>
+        {[1, 2, 3, 4, 5].map((estrella) => (
           <Pressable
-            key={star}
-            onPress={() => setCalificacion(star)}
+            key={estrella}
+            onPress={() => setCalificacion(estrella)}
           >
             <FontAwesome
-              name={star <= calificacion ? "star" : "star-o"}
+              name={estrella <= calificacion ? "star" : "star-o"}
               size={30}
               color="#FFD700"
-              style={styles.star}
+              style={styles.estrella}
             />
           </Pressable>
         ))}
@@ -55,13 +35,11 @@ const FormularioResena = ({ onSubmit, resenaInicial = null }) => {
         numberOfLines={4}
       />
 
-      <Pressable 
-        style={styles.submitButton}
-        onPress={handleSubmit}
+      <Pressable
+        style={styles.boton}
+        onPress={() => onSubmit({ calificacion, texto: comentario })}
       >
-        <Text style={styles.submitButtonText}>
-          {resenaInicial ? 'Actualizar' : 'Publicar'} reseña
-        </Text>
+        <Text style={styles.botonTexto}>Publicar reseña</Text>
       </Pressable>
     </View>
   );
@@ -74,17 +52,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 16,
   },
-  title: {
+  titulo: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 16,
   },
-  starsContainer: {
+  estrellas: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginBottom: 16,
   },
-  star: {
+  estrella: {
     marginHorizontal: 4,
   },
   input: {
@@ -96,16 +74,16 @@ const styles = StyleSheet.create({
     minHeight: 100,
     textAlignVertical: 'top',
   },
-  submitButton: {
+  boton: {
     backgroundColor: '#007AFF',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
   },
-  submitButtonText: {
+  botonTexto: {
     color: '#fff',
     fontWeight: 'bold',
   },
 });
 
-export default FormularioResena;
+export default FormularioResenas;
