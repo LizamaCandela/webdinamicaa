@@ -5,13 +5,15 @@ import {
   TextInput, 
   TouchableOpacity, 
   StyleSheet,
-  Alert 
+  Alert,
+  ImageBackground 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
+import { FontAwesome5 } from '@expo/vector-icons';
 
-const InicioScreen = () => {
+const Inicio = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -58,134 +60,220 @@ const InicioScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Iniciar Sesión</Text>
-        
-        <TextInput
-          style={styles.input}
-          value={nombre}
-          onChangeText={setNombre}
-          placeholder="Nombre"
-          autoCapitalize="words"
-          placeholderTextColor="#666"
-        />
-        
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          placeholderTextColor="#666"
-        />
-        
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Contraseña"
-          secureTextEntry={true}
-          placeholderTextColor="#666"
-        />
-        
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={handleLogin}
-        >
-          <Text style={styles.buttonText}>Iniciar Sesión</Text>
-        </TouchableOpacity>
+    <View style={styles.mainContainer}>
+      <View style={styles.floatingIcons}>
+        <FontAwesome5 name="plane" size={30} color="rgba(255,255,255,0.15)" style={[styles.floatingIcon, styles.icon1]} />
+        <FontAwesome5 name="map-marked-alt" size={30} color="rgba(255,255,255,0.15)" style={[styles.floatingIcon, styles.icon2]} />
+        <FontAwesome5 name="umbrella-beach" size={30} color="rgba(255,255,255,0.15)" style={[styles.floatingIcon, styles.icon3]} />
+        <FontAwesome5 name="mountain" size={30} color="rgba(255,255,255,0.15)" style={[styles.floatingIcon, styles.icon4]} />
+        <FontAwesome5 name="camera" size={30} color="rgba(255,255,255,0.15)" style={[styles.floatingIcon, styles.icon5]} />
+      </View>
 
-        <TouchableOpacity 
-          style={styles.registerButton}
-          onPress={() => navigation.navigate('Registro')}
-        >
-          <Text style={styles.registerText}>¿No tienes cuenta? Regístrate</Text>
-        </TouchableOpacity>
+      <View style={styles.container}>
+        <View style={styles.formContainer}>
+          <View style={styles.logoContainer}>
+            <FontAwesome5 name="compass" size={40} color="#1E88E5" />
+          </View>
+
+          <Text style={styles.title}>Iniciar Sesión</Text>
+          
+          <View style={styles.inputWrapper}>
+            <FontAwesome5 name="user" size={18} color="#1E88E5" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              value={nombre}
+              onChangeText={setNombre}
+              placeholder="Nombre"
+              placeholderTextColor="#90A4AE"
+            />
+          </View>
+          
+          <View style={styles.inputWrapper}>
+            <FontAwesome5 name="envelope" size={18} color="#1E88E5" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Email"
+              placeholderTextColor="#90A4AE"
+              keyboardType="email-address"
+            />
+          </View>
+          
+          <View style={styles.inputWrapper}>
+            <FontAwesome5 name="lock" size={18} color="#1E88E5" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Contraseña"
+              placeholderTextColor="#90A4AE"
+              secureTextEntry
+            />
+          </View>
+
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.registerButton}
+            onPress={() => navigation.navigate('Registro')}
+          >
+            <Text style={styles.registerText}>
+              ¿No tienes cuenta? <Text style={styles.registerTextBold}>Regístrate</Text>
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
 };
 
-export default InicioScreen;
-
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+    backgroundColor: '#1B4F72',
+  },
+  floatingIcons: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  floatingIcon: {
+    position: 'absolute',
+  },
+  icon1: { top: '10%', left: '10%' },
+  icon2: { top: '20%', right: '15%' },
+  icon3: { bottom: '25%', left: '15%' },
+  icon4: { bottom: '40%', right: '10%' },
+  icon5: { top: '40%', left: '20%' },
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: 'grey',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
   formContainer: {
-    width: '35%',
-    minHeight: 380,
+    width: '25%',
+    minWidth: 300,
     backgroundColor: 'white',
-    padding: 8,
     borderRadius: 20,
+    padding: 30,
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 10,
     },
     shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    paddingVertical: 25,
-    justifyContent: 'space-between',
+    shadowRadius: 15,
+    elevation: 10,
+  },
+  logoContainer: {
+    width: 80,
+    height: 80,
+    backgroundColor: '#E3F2FD',
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: 'black',
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#1E88E5',
+    marginBottom: 30,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    height: 45,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 10,
+    marginBottom: 15,
+    paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  inputIcon: {
+    marginRight: 10,
   },
   input: {
-    width: '90%',
-    height: 30,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    marginBottom: 15,
-    paddingHorizontal: 8,
-    borderRadius: 15,
-    backgroundColor: '#f9f9f9',
-    alignSelf: 'center',
-    fontSize: 12,
+    flex: 1,
+    color: '#424242',
+    fontSize: 14,
   },
-  button: {
-    backgroundColor: '#4c669f',
-    padding: 12,
-    borderRadius: 25,
-    width: '70%',
+  loginButton: {
+    width: '100%',
+    height: 45,
+    backgroundColor: '#1E88E5',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 20,
-    alignSelf: 'center',
-    shadowColor: '#000',
+    shadowColor: '#1E88E5',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
     elevation: 5,
   },
-  buttonText: {
+  loginButtonText: {
     color: 'white',
-    textAlign: 'center',
-    fontSize: 14,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    fontSize: 16,
+    fontWeight: '600',
   },
   registerButton: {
     marginTop: 20,
     padding: 10,
   },
   registerText: {
-    color: '#4c669f',
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-    fontSize: 12,
+    color: '#757575',
+    fontSize: 14,
+  },
+  registerTextBold: {
+    color: '#1E88E5',
+    fontWeight: '600',
   }
 });
+
+// Estilos para efectos hover en web
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.type = 'text/css';
+  style.appendChild(document.createTextNode(`
+    .loginButton {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .loginButton:hover {
+      background-color: #1976D2 !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
+    }
+    .loginButton:active {
+      transform: translateY(1px);
+    }
+    .registerButton {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .registerButton:hover {
+      opacity: 0.8;
+    }
+    .inputWrapper {
+      transition: all 0.3s ease;
+    }
+    .inputWrapper:focus-within {
+      border-color: #1E88E5;
+      box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.2);
+    }
+  `));
+  document.head.appendChild(style);
+}
+
+export default Inicio;
