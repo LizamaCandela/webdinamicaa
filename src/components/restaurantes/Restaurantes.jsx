@@ -3,15 +3,13 @@ import {
   View, 
   Text, 
   Image, 
-  TextInput, 
   StyleSheet, 
-  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   Picker,
   FlatList 
 } from "react-native";
-import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
+import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import { db } from "../../firebase/firebase.jsx";
 import RestauranteDetalle from './RestauranteDetalle';
 
@@ -58,17 +56,12 @@ const Restaurantes = () => {
   const [restaurantes, setRestaurantes] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
-  const [busqueda, setBusqueda] = useState("");
   const [municipioSeleccionado, setMunicipioSeleccionado] = useState("Seleccione un municipio");
   const [restauranteSeleccionado, setRestauranteSeleccionado] = useState(null);
 
   useEffect(() => {
     cargarRestaurantes();
   }, [municipioSeleccionado]);
-
-  const handleMunicipioChange = (value) => {
-    setMunicipioSeleccionado(value);
-  };
 
   const cargarRestaurantes = async () => {
     if (municipioSeleccionado === "Seleccione un municipio") {
@@ -79,101 +72,32 @@ const Restaurantes = () => {
 
     try {
       setCargando(true);
-      console.log('1. Iniciando carga para municipio:', municipioSeleccionado);
-
       const restaurantesRef = collection(db, "restaurantes");
-      console.log('2. Referencia a colección creada');
-
-      // Obtener TODOS los documentos primero para debug
-      const todosLosRestaurantes = await getDocs(collection(db, "restaurantes"));
-      console.log('3. TODOS los restaurantes:');
-      todosLosRestaurantes.forEach(doc => {
-        console.log('Documento:', {
-          id: doc.id,
-          municipio: doc.data().municipio,
-          datos: doc.data()
-        });
-      });
-
       const q = query(
         restaurantesRef,
         where("municipio", "==", municipioSeleccionado),
         orderBy("nombre")
       );
-      console.log('4. Query creada para municipio:', municipioSeleccionado);
 
       const querySnapshot = await getDocs(q);
-      console.log('5. Documentos encontrados:', querySnapshot.size);
+      const restaurantesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
 
-      const restaurantesData = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        console.log('6. Procesando documento:', { id: doc.id, ...data });
-        return {
-          id: doc.id,
-          ...data
-        };
-      });
-
-      console.log('7. Datos finales:', restaurantesData);
       setRestaurantes(restaurantesData);
       setCargando(false);
-
     } catch (error) {
-      console.error('ERROR DETALLADO:', {
-        mensaje: error.message,
-        codigo: error.code,
-        nombre: error.name,
-        stack: error.stack
-      });
+      console.error('ERROR:', error);
       setError(`Error al cargar los restaurantes: ${error.message}`);
       setCargando(false);
     }
   };
 
-  const restaurantesFiltrados = busqueda
-    ? restaurantes.filter(rest =>
-        rest.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-        rest.direccion.toLowerCase().includes(busqueda.toLowerCase()) ||
-        rest.categoria.toLowerCase().includes(busqueda.toLowerCase())
-      )
-    : restaurantes;
-
   const handleRestaurantePress = (restaurante) => {
+    console.log("Restaurante seleccionado:", restaurante);
     setRestauranteSeleccionado(restaurante);
   };
-
-  const renderRestaurante = ({ item: restaurante }) => (
-    <TouchableOpacity 
-      style={styles.card}
-      onPress={() => handleRestaurantePress(restaurante)}
-    >
-      {restaurante.imagen ? (
-        <Image 
-          source={{ uri: restaurante.imagen }} 
-          style={styles.cardImage}
-          resizeMode="cover"
-        />
-      ) : (
-        <View style={[styles.cardImage, styles.noImage]}>
-          <Text style={styles.noImageText}>Sin imagen</Text>
-        </View>
-      )}
-      <View style={styles.cardContent}>
-        <Text style={styles.cardTitle} numberOfLines={1}>
-          {restaurante.nombre}
-        </Text>
-        <Text style={styles.cardText} numberOfLines={1}>
-          {restaurante.direccion}
-        </Text>
-        <Text style={styles.cardText} numberOfLines={1}>
-          {restaurante.horario}
-        </Text>
-        <Text style={styles.cardCategory}>
-          {restaurante.categoria}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
 
   if (restauranteSeleccionado) {
     return (
@@ -184,56 +108,71 @@ const Restaurantes = () => {
     );
   }
 
-  if (error) {
-    return (
-      <View style={styles.centeredContainer}>
-        <Text style={styles.error}>{error}</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Restaurantes</Text>
-        <Text style={styles.headerSubtitle}>Descubre los mejores lugares</Text>
+        <Text style={styles.headerSubtitle}>Encuentra los mejores lugares para comer</Text>
         
         <View style={styles.pickerContainer}>
-          <View style={styles.pickerWrapper}>
-            <Picker
-              selectedValue={municipioSeleccionado}
-              onValueChange={handleMunicipioChange}
-              style={styles.picker}
-            >
-              {municipiosNeuquen.map((municipio) => (
-                <Picker.Item 
-                  key={municipio} 
-                  label={municipio} 
-                  value={municipio}
-                />
-              ))}
-            </Picker>
-          </View>
+          <Picker
+            selectedValue={municipioSeleccionado}
+            style={styles.picker}
+            onValueChange={(itemValue) => setMunicipioSeleccionado(itemValue)}
+          >
+            {municipiosNeuquen.map((municipio) => (
+              <Picker.Item 
+                key={municipio} 
+                label={municipio} 
+                value={municipio}
+                style={styles.pickerItem}
+              />
+            ))}
+          </Picker>
         </View>
       </View>
 
-      {error && (
-        <Text style={styles.error}>{error}</Text>
-      )}
-
       {cargando ? (
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Buscando restaurantes...</Text>
+          <ActivityIndicator size="large" color="#2C3E50" />
+          <Text style={styles.loadingText}>Cargando restaurantes...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
         </View>
       ) : (
         <FlatList
           data={restaurantes}
-          renderItem={renderRestaurante}
+          renderItem={({ item }) => (
+            <TouchableOpacity 
+              style={styles.card}
+              onPress={() => handleRestaurantePress(item)}
+            >
+              <Image 
+                source={{ uri: item.imagen || 'https://via.placeholder.com/150' }} 
+                style={styles.cardImage}
+              />
+              <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>{item.nombre}</Text>
+                <Text style={styles.cardType}>{item.tipo}</Text>
+                <Text style={styles.cardLocation}>{item.ubicacion}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
           keyExtractor={(item) => item.id}
           numColumns={2}
+          contentContainerStyle={styles.listContainer}
           columnWrapperStyle={styles.row}
-          contentContainerStyle={styles.grid}
-          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                {municipioSeleccionado === "Seleccione un municipio"
+                  ? "Por favor, seleccione un municipio"
+                  : "No hay restaurantes disponibles en este municipio"}
+              </Text>
+            </View>
+          }
         />
       )}
     </View>
@@ -247,10 +186,11 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#2C3E50',
-    paddingTop: 20,
-    paddingBottom: 20,
+    padding: 20,
+    paddingTop: 40,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
+    alignItems: 'center',
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -264,43 +204,33 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
-    textAlign: 'center',
-    marginBottom: 5,
+    marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
     color: '#E8E8E8',
-    textAlign: 'center',
     marginBottom: 20,
   },
   pickerContainer: {
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  pickerWrapper: {
-    width: '80%',
+    width: '90%',
     backgroundColor: '#fff',
-    borderRadius: 15,
+    borderRadius: 10,
+    marginBottom: 10,
     overflow: 'hidden',
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   picker: {
-    height: 45,
+    height: 50,
     width: '100%',
   },
-  grid: {
-    padding: 15,
+  pickerItem: {
+    fontSize: 16,
+  },
+  listContainer: {
+    padding: 10,
   },
   row: {
     justifyContent: 'space-between',
-    paddingHorizontal: 8,
+    marginHorizontal: 10,
   },
   card: {
     width: '48%',
@@ -319,36 +249,26 @@ const styles = StyleSheet.create({
   },
   cardImage: {
     width: '100%',
-    height: 130,
-  },
-  noImage: {
-    backgroundColor: '#f5f5f5',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  noImageText: {
-    color: '#999',
-    fontSize: 12,
+    height: 120,
+    resizeMode: 'cover',
   },
   cardContent: {
-    padding: 12,
+    padding: 10,
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: 'bold',
+    marginBottom: 4,
     color: '#2C3E50',
+  },
+  cardType: {
+    fontSize: 14,
+    color: '#E74C3C',
     marginBottom: 4,
   },
-  cardText: {
+  cardLocation: {
     fontSize: 12,
-    color: '#7F8C8D',
-    marginBottom: 2,
-  },
-  cardCategory: {
-    fontSize: 12,
-    color: '#E74C3C',
-    marginTop: 4,
-    fontWeight: '500',
+    color: '#666',
   },
   loadingContainer: {
     flex: 1,
@@ -356,17 +276,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
+    marginTop: 10,
     fontSize: 16,
-    color: '#7F8C8D',
+    color: '#666',
   },
-  error: {
-    color: '#E74C3C',
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
+  },
+  errorText: {
+    color: '#E74C3C',
+    fontSize: 16,
     textAlign: 'center',
-    backgroundColor: '#FADBD8',
-    margin: 10,
-    borderRadius: 8,
-  }
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
 });
 
 export default Restaurantes;
