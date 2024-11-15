@@ -8,7 +8,8 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Picker 
+  Picker,
+  FlatList 
 } from "react-native";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase/firebase.jsx";
@@ -62,13 +63,11 @@ const Hotel = () => {
         ...doc.data()
       }));
 
-      hotelesData.sort((a, b) => a.nombre.localeCompare(b.nombre));
       setHoteles(hotelesData);
       setCargando(false);
-
     } catch (error) {
-      console.error('ERROR DETALLADO:', error);
-      setError('Error al cargar los hoteles: ${error.message}');
+      console.error('ERROR:', error);
+      setError(`Error al cargar los hoteles: ${error.message}`);
       setCargando(false);
     }
   };
@@ -94,205 +93,210 @@ const Hotel = () => {
     );
   }
 
-  if (error) {
-    return (
-      <View style={styles.centeredContainer}>
-        <Text style={styles.error}>{error}</Text>
+  const renderHotel = ({ item: hotel }) => (
+    <TouchableOpacity 
+      style={styles.card}
+      onPress={() => handleHotelPress(hotel)}
+    >
+      <Image 
+        source={{ uri: hotel.imagen || 'https://via.placeholder.com/150' }} 
+        style={styles.cardImage}
+      />
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle}>{hotel.nombre}</Text>
+        <Text style={styles.cardCategory}>{hotel.categoria}</Text>
+        <Text style={styles.cardLocation}>{hotel.ubicacion}</Text>
+        <Text style={styles.cardPrice}>{hotel.precio}</Text>
       </View>
-    );
-  }
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
-      <View style={styles.selectorContainer}>
-        <View style={styles.pickerWrapper}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Hoteles</Text>
+        <Text style={styles.headerSubtitle}>Encuentra el mejor alojamiento</Text>
+        
+        <View style={styles.pickerContainer}>
           <Picker
             selectedValue={municipioSeleccionado}
             style={styles.picker}
             onValueChange={(itemValue) => setMunicipioSeleccionado(itemValue)}
           >
             {municipiosNeuquen.map((municipio) => (
-              <Picker.Item key={municipio} label={municipio} value={municipio} />
+              <Picker.Item 
+                key={municipio} 
+                label={municipio} 
+                value={municipio}
+                style={styles.pickerItem}
+              />
             ))}
           </Picker>
         </View>
       </View>
 
-      <View style={styles.busquedaContainer}>
-        <TextInput
-          style={styles.busquedaInput}
-          placeholder="Buscar hotel..."
-          value={busqueda}
-          onChangeText={setBusqueda}
-        />
-      </View>
-
       {cargando ? (
-        <View style={styles.centeredContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.cargandoText}>Cargando hoteles...</Text>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#2C3E50" />
+          <Text style={styles.loadingText}>Cargando hoteles...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollView}>
-          <View style={styles.gridContainer}>
-            {hotelesFiltrados.length > 0 ? (
-              <View style={styles.grid}>
-                {hotelesFiltrados.map(hotel => (
-                  <TouchableOpacity 
-                    key={hotel.id} 
-                    style={styles.hotelCard}
-                    onPress={() => handleHotelPress(hotel)}
-                  >
-                    <Image
-                      source={{ uri: hotel.imagen || 'https://via.placeholder.com/150' }}
-                      style={styles.hotelImagen}
-                    />
-                    <View style={styles.hotelInfo}>
-                      <Text style={styles.nombre} numberOfLines={1}>{hotel.nombre}</Text>
-                      <Text style={styles.categoria} numberOfLines={1}>{hotel.categoria}</Text>
-                      <Text style={styles.ubicacion} numberOfLines={1}>{hotel.ubicacion}</Text>
-                      <Text style={styles.telefono} numberOfLines={1}>{hotel.telefono}</Text>
-                      <Text style={styles.precio} numberOfLines={1}>{hotel.precio}</Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            ) : (
-              <View style={styles.noResultados}>
-                <Text style={styles.noResultadosText}>
-                  {municipioSeleccionado === "Seleccione un municipio" 
-                    ? "Por favor, seleccione un municipio"
-                    : "No hay hoteles disponibles en este municipio"}
-                </Text>
-              </View>
-            )}
-          </View>
-        </ScrollView>
+        <FlatList
+          data={hotelesFiltrados}
+          renderItem={renderHotel}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContainer}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                {municipioSeleccionado === "Seleccione un municipio"
+                  ? "Por favor, seleccione un municipio"
+                  : "No hay hoteles disponibles en este municipio"}
+              </Text>
+            </View>
+          }
+        />
       )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  // ... Los mismos estilos que tenías, solo cambiando las referencias de "actividad" por "hotel" ...
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  selectorContainer: {
     backgroundColor: '#fff',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+  },
+  header: {
+    backgroundColor: '#2C3E50',
+    padding: 20,
+    paddingTop: 40,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
     alignItems: 'center',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  pickerWrapper: {
-    width: '80%',
-    maxWidth: 300,
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#E8E8E8',
+    marginBottom: 20,
+  },
+  pickerContainer: {
+    width: '90%',
     backgroundColor: '#fff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    borderRadius: 10,
+    marginBottom: 10,
     overflow: 'hidden',
   },
   picker: {
-    height: 40,
+    height: 50,
     width: '100%',
   },
-  centeredContainer: {
+  pickerItem: {
+    fontSize: 16,
+  },
+  listContainer: {
+    padding: 10,
+  },
+  row: {
+    justifyContent: 'space-between',
+    marginHorizontal: 10,
+  },
+  card: {
+    width: '48%',
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    marginVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+    overflow: 'hidden',
+  },
+  cardImage: {
+    width: '100%',
+    height: 120,
+    resizeMode: 'cover',
+  },
+  cardContent: {
+    padding: 10,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#2C3E50',
+  },
+  cardCategory: {
+    fontSize: 14,
+    color: '#007AFF',
+    marginBottom: 4,
+  },
+  cardLocation: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 4,
+  },
+  cardPrice: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#2ECC71',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
-  busquedaContainer: {
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  busquedaInput: {
-    backgroundColor: '#f0f0f0',
-    padding: 12,
-    borderRadius: 8,
+  errorText: {
+    color: '#E74C3C',
     fontSize: 16,
+    textAlign: 'center',
   },
-  scrollView: {
-    flexGrow: 1,
-    padding: 10,
-  },
-  gridContainer: {
+  emptyContainer: {
     flex: 1,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  hotelCard: {
-    width: '48%',
-    marginBottom: 10,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  hotelImagen: {
-    width: '100%',
-    height: 120,
-    resizeMode: 'cover',
-  },
-  hotelInfo: {
-    padding: 8,
-  },
-  nombre: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  categoria: {
-    fontSize: 12,
-    color: '#007AFF',
-    marginBottom: 2,
-  },
-  ubicacion: {
-    fontSize: 11,
-    color: '#666',
-    marginBottom: 2,
-  },
-  telefono: {
-    fontSize: 11,
-    color: '#666',
-    marginBottom: 2,
-  },
-  precio: {
-    fontSize: 11,
-    color: '#666',
-  },
-  noResultados: {
-    padding: 20,
+    justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
+    padding: 20,
   },
-  noResultadosText: {
+  emptyText: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
   },
-  error: {
-    color: 'red',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  cargandoText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#666',
-  }
 });
 
 export default Hotel;
