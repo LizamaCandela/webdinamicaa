@@ -1,131 +1,80 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { 
   View, 
   Text, 
   Image, 
   StyleSheet, 
   ScrollView, 
-  TouchableOpacity 
+  TouchableOpacity,
+  Linking 
 } from 'react-native';
-import FormularioResenas from '../resenas/FormularioResenas';
-import { collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from "../../firebase/firebase";
 import { FontAwesome } from '@expo/vector-icons';
 
 const HotelDetalle = ({ hotel, onBack }) => {
-  const [resenas, setResenas] = useState([]);
-
-  useEffect(() => {
-    cargarResenas();
-  }, [hotel.id]);
-
-  const cargarResenas = async () => {
-    try {
-      const q = query(
-        collection(db, 'resenas'),
-        where('hotelId', '==', hotel.id)
-      );
-      const querySnapshot = await getDocs(q);
-      const resenasData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setResenas(resenasData);
-    } catch (error) {
-      console.error('Error al cargar reseñas:', error);
-    }
-  };
-
-  const agregarResena = async (nuevaResena) => {
-    try {
-      const resenaDoc = {
-        hotelId: hotel.id,
-        texto: nuevaResena.texto,
-        calificacion: nuevaResena.calificacion,
-        fecha: serverTimestamp(),
-        usuario: 'Usuario Anónimo'
-      };
-
-      await addDoc(collection(db, 'resenas'), resenaDoc);
-      await cargarResenas();
-    } catch (error) {
-      console.error('Error al agregar reseña:', error);
-    }
-  };
-
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity 
-        style={styles.backButton} 
-        onPress={onBack}
-      >
-        <Text style={styles.backButtonText}>← Volver</Text>
-      </TouchableOpacity>
-
       <Image
         source={{ uri: hotel.imagen || 'https://via.placeholder.com/400' }}
-        style={styles.imagen}
+        style={styles.headerImage}
       />
+      
+      <TouchableOpacity 
+        style={styles.backButton}
+        onPress={onBack}
+      >
+        <Text style={styles.backText}>← Volver</Text>
+      </TouchableOpacity>
 
-      <View style={styles.contenido}>
-        <Text style={styles.nombre}>{hotel.nombre}</Text>
-        <Text style={styles.categoria}>{hotel.categoria}</Text>
-        
-        <View style={styles.seccion}>
-          <Text style={styles.label}>Ubicación:</Text>
-          <Text style={styles.texto}>{hotel.ubicacion}</Text>
-        </View>
+      <View style={styles.contentContainer}>
+        <Text style={styles.title}>{hotel.nombre}</Text>
 
-        <View style={styles.seccion}>
-          <Text style={styles.label}>Teléfono:</Text>
-          <Text style={styles.texto}>{hotel.telefono}</Text>
-        </View>
-
-        <View style={styles.seccion}>
-          <Text style={styles.label}>Email:</Text>
-          <Text style={styles.texto}>{hotel.email}</Text>
-        </View>
-
-        <View style={styles.seccion}>
-          <Text style={styles.label}>Servicios:</Text>
-          <Text style={styles.texto}>{hotel.servicios}</Text>
-        </View>
-
-        <View style={styles.seccion}>
-          <Text style={styles.label}>Precio por noche:</Text>
-          <Text style={styles.texto}>{hotel.precio}</Text>
-        </View>
-
-        <View style={styles.seccion}>
-          <Text style={styles.label}>Descripción:</Text>
-          <Text style={styles.descripcion}>{hotel.descripcion}</Text>
-        </View>
-
-        {/* Sección de reseñas */}
-        <View style={styles.resenasSection}>
-          <Text style={styles.resenasTitle}>Reseñas</Text>
-          
-          <FormularioResenas onSubmit={agregarResena} />
-
-          {resenas.map(resena => (
-            <View key={resena.id} style={styles.resenaCard}>
-              <View style={styles.resenaHeader}>
-                <Text style={styles.resenaUsuario}>{resena.usuario}</Text>
-                <View style={styles.estrellas}>
-                  {[...Array(5)].map((_, index) => (
-                    <FontAwesome
-                      key={index}
-                      name={index < resena.calificacion ? "star" : "star-o"}
-                      size={16}
-                      color="#FFD700"
-                      style={styles.estrella}
-                    />
-                  ))}
-                </View>
-              </View>
-              <Text style={styles.resenaTexto}>{resena.texto}</Text>
+        <View style={styles.infoCard}>
+          <View style={styles.infoRow}>
+            <View style={styles.iconContainer}>
+              <FontAwesome name="map-marker" size={24} color="#2C3E50" />
             </View>
-          ))}
+            <Text style={styles.infoLabel}>Ubicación:</Text>
+            <Text style={styles.infoText}>{hotel.ubicacion || 'No disponible'}</Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <View style={styles.iconContainer}>
+              <FontAwesome name="phone" size={24} color="#2C3E50" />
+            </View>
+            <Text style={styles.infoLabel}>Teléfono:</Text>
+            <Text style={styles.infoText}>{hotel.telefono || 'No disponible'}</Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <View style={styles.iconContainer}>
+              <FontAwesome name="envelope" size={24} color="#2C3E50" />
+            </View>
+            <Text style={styles.infoLabel}>Email:</Text>
+            <Text style={styles.infoText}>{hotel.email || 'No disponible'}</Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <View style={styles.iconContainer}>
+              <FontAwesome name="bed" size={24} color="#2C3E50" />
+            </View>
+            <Text style={styles.infoLabel}>Servicios:</Text>
+            <Text style={styles.infoText}>{hotel.servicios || 'No disponible'}</Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <View style={styles.iconContainer}>
+              <FontAwesome name="money" size={24} color="#2C3E50" />
+            </View>
+            <Text style={styles.infoLabel}>Precio:</Text>
+            <Text style={styles.infoText}>{hotel.precio || 'No disponible'}</Text>
+          </View>
+        </View>
+
+        <View style={styles.descriptionCard}>
+          <Text style={styles.sectionTitle}>Descripción</Text>
+          <Text style={styles.descriptionText}>
+            {hotel.descripcion || 'Sin descripción disponible'}
+          </Text>
         </View>
       </View>
     </ScrollView>
@@ -133,46 +82,98 @@ const HotelDetalle = ({ hotel, onBack }) => {
 };
 
 const styles = StyleSheet.create({
-  // ... estilos existentes ...
-  resenasSection: {
-    marginTop: 24,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 16,
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
   },
-  resenasTitle: {
+  headerImage: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 10,
+    borderRadius: 20,
+    zIndex: 1,
+  },
+  backText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  contentContainer: {
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    marginBottom: 20,
+  },
+  infoCard: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  iconContainer: {
+    width: 40,
+    alignItems: 'center',
+  },
+  infoLabel: {
+    width: 80,
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#2C3E50',
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#34495E',
+  },
+  descriptionCard: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+  },
+  sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#333',
+    color: '#2C3E50',
+    marginBottom: 10,
   },
-  resenaCard: {
-    backgroundColor: '#f8f8f8',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  resenaHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  resenaUsuario: {
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  estrellas: {
-    flexDirection: 'row',
-  },
-  estrella: {
-    marginLeft: 4,
-  },
-  resenaTexto: {
+  descriptionText: {
     fontSize: 16,
     lineHeight: 24,
-    color: '#666',
-  },
-  // ... mantener los estilos existentes ...
+    color: '#34495E',
+  }
 });
 
 export default HotelDetalle;

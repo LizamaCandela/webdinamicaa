@@ -86,6 +86,7 @@ const Actividad = () => {
     : actividades;
 
   const handleActividadPress = (actividad) => {
+    console.log("Actividad seleccionada:", actividad); // Para debug
     setActividadSeleccionada(actividad);
   };
 
@@ -97,24 +98,6 @@ const Actividad = () => {
       />
     );
   }
-
-  const renderActividad = ({ item: actividad }) => (
-    <TouchableOpacity 
-      style={styles.card}
-      onPress={() => handleActividadPress(actividad)}
-    >
-      <Image 
-        source={{ uri: actividad.imagen || 'https://via.placeholder.com/150' }} 
-        style={styles.cardImage}
-      />
-      <View style={styles.cardContent}>
-        <Text style={styles.cardTitle}>{actividad.nombre}</Text>
-        <Text style={styles.cardType}>{actividad.tipo}</Text>
-        <Text style={styles.cardLocation}>{actividad.ubicacion}</Text>
-        <Text style={styles.cardPrice}>{actividad.precio}</Text>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <View style={styles.container}>
@@ -142,7 +125,7 @@ const Actividad = () => {
 
       {cargando ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#2C3E50" />
+          <ActivityIndicator size="large" color="#007AFF" />
           <Text style={styles.loadingText}>Cargando actividades...</Text>
         </View>
       ) : error ? (
@@ -152,21 +135,27 @@ const Actividad = () => {
       ) : (
         <FlatList
           data={actividadesFiltradas}
-          renderItem={renderActividad}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
+          renderItem={({ item }) => (
+            <TouchableOpacity 
+              style={styles.card}
+              onPress={() => handleActividadPress(item)}
+            >
+              <Image 
+                source={{ uri: item.imagen || 'https://via.placeholder.com/150' }} 
+                style={styles.cardImage}
+              />
+              <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>{item.nombre}</Text>
+                <Text style={styles.cardType}>{item.tipo}</Text>
+                <Text style={styles.cardLocation}>{item.ubicacion}</Text>
+                <Text style={styles.cardPrice}>{item.precio || 'Gratuito'}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          keyExtractor={item => item.id}
           numColumns={2}
+          contentContainerStyle={styles.listContainer}
           columnWrapperStyle={styles.row}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>
-                {municipioSeleccionado === "Seleccione un municipio"
-                  ? "Por favor, seleccione un municipio"
-                  : "No hay actividades disponibles en este municipio"}
-              </Text>
-            </View>
-          }
         />
       )}
     </View>
@@ -289,17 +278,6 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#E74C3C',
     fontSize: 16,
-    textAlign: 'center',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#666',
     textAlign: 'center',
   },
 });
