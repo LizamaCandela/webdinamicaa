@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -7,12 +7,97 @@ import {
   ScrollView, 
   TouchableOpacity,
   TextInput,
-  Linking 
+  Linking,
+  Alert
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { collection, query, where, getDocs, addDoc, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { db, auth } from "../../firebase/firebase";
+import FormularioResenas from '../resenas/FormularioResenas';
 
 const RestauranteDetalle = ({ restaurante, onBack }) => {
-  console.log("Datos de restaurante recibidos:", restaurante);
+  const [resenas, setResenas] = useState([]);
+  const [resenaEnEdicion, setResenaEnEdicion] = useState(null);
+
+  useEffect(() => {
+    cargarResenas();
+  }, []);
+
+  const cargarResenas = async () => {
+    try {
+      const q = query(
+        collection(db, 'resenas'),
+        where('restauranteId', '==', restaurante.id)
+      );
+      const querySnapshot = await getDocs(q);
+      const resenasData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setResenas(resenasData);
+    } catch (error) {
+      console.error('Error al cargar reseñas:', error);
+    }
+  };
+
+  const agregarResena = async (nuevaResena) => {
+    try {
+      const resenaDoc = {
+        restauranteId: restaurante.id,
+        texto: nuevaResena.texto,
+        calificacion: nuevaResena.calificacion,
+        fecha: serverTimestamp(),
+        usuario: auth.currentUser.email
+      };
+
+      await addDoc(collection(db, 'resenas'), resenaDoc);
+      cargarResenas();
+    } catch (error) {
+      console.error('Error al agregar reseña:', error);
+    }
+  };
+
+  const handleEditarResena = async (resenaEditada) => {
+    try {
+      const docRef = doc(db, 'resenas', resenaEditada.id);
+      await updateDoc(docRef, {
+        calificacion: resenaEditada.calificacion,
+        texto: resenaEditada.texto,
+        fechaEdicion: serverTimestamp()
+      });
+      
+      await cargarResenas();
+      setResenaEnEdicion(null);
+    } catch (error) {
+      console.error('Error al editar reseña:', error);
+      Alert.alert('Error', 'No se pudo editar la reseña');
+    }
+  };
+
+  const handleEliminarResena = async (resenaId) => {
+    try {
+      const docRef = doc(db, 'resenas', resenaId);
+      await deleteDoc(docRef);
+      await cargarResenas();
+      Alert.alert('Éxito', 'Reseña eliminada correctamente');
+    } catch (error) {
+      console.error('Error al eliminar reseña:', error);
+      Alert.alert('Error', 'No se pudo eliminar la reseña');
+    }
+  };
+
+  const handleLlamar = () => {
+    if (restaurante.telefono) {
+      Linking.openURL(`tel:${restaurante.telefono}`);
+    }
+  };
+
+  const handleDireccion = () => {
+    if (restaurante.direccion) {
+      const direccionFormateada = encodeURIComponent(restaurante.direccion);
+      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${direccionFormateada}`);
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -25,57 +110,30 @@ const RestauranteDetalle = ({ restaurante, onBack }) => {
         style={styles.backButton}
         onPress={onBack}
       >
-        <Text style={styles.backText}>← Volver</Text>
+        <FontAwesome name="arrow-left" size={24} color="#fff" />
       </TouchableOpacity>
 
       <View style={styles.contentContainer}>
         <Text style={styles.title}>{restaurante.nombre}</Text>
         <View style={styles.tagContainer}>
-          <Text style={styles.tag}>{restaurante.tipo || 'Restaurante'}</Text>
+          <Text style={styles.tag}>Restaurante</Text>
         </View>
 
         <View style={styles.infoCard}>
-          <TouchableOpacity 
-            style={styles.infoRow}
-            onPress={() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurante.ubicacion)}`)}
-          >
-            <View style={styles.iconContainer}>
-              <FontAwesome name="map-marker" size={24} color="#2C3E50" />
-            </View>
-            <Text style={styles.infoLabel}>direccion:</Text>
-            <Text style={styles.infoText}>{restaurante.dirrecion}</Text>
-          </TouchableOpacity>
-
           <View style={styles.infoRow}>
-            <View style={styles.iconContainer}>
-              <FontAwesome name="clock-o" size={24} color="#2C3E50" />
-            </View>
-            <Text style={styles.infoLabel}>Horario:</Text>
-            <Text style={styles.infoText}>{restaurante.horario}</Text>
+            <FontAwesome name="phone" size={24} color="#2C3E50" />
+            <Text style={styles.infoText}>{restaurante.telefono || 'No disponible'}</Text>
           </View>
 
-          {restaurante.telefono && (
-            <TouchableOpacity 
-              style={styles.infoRow}
-              onPress={() => Linking.openURL(`tel:${restaurante.telefono}`)}
-            >
-              <View style={styles.iconContainer}>
-                <FontAwesome name="phone" size={24} color="#2C3E50" />
-              </View>
-              <Text style={styles.infoLabel}>Teléfono:</Text>
-              <Text style={styles.infoText}>{restaurante.telefono}</Text>
-            </TouchableOpacity>
-          )}
+          <View style={styles.infoRow}>
+            <FontAwesome name="map-marker" size={24} color="#2C3E50" />
+            <Text style={styles.infoText}>{restaurante.direccion || 'Dirección no disponible'}</Text>
+          </View>
 
-          {restaurante.precio && (
-            <View style={styles.infoRow}>
-              <View style={styles.iconContainer}>
-                <FontAwesome name="money" size={24} color="#2C3E50" />
-              </View>
-              <Text style={styles.infoLabel}>Precio:</Text>
-              <Text style={styles.infoText}>{restaurante.precio}</Text>
-            </View>
-          )}
+          <View style={styles.infoRow}>
+            <FontAwesome name="clock-o" size={24} color="#2C3E50" />
+            <Text style={styles.infoText}>{restaurante.horario || 'Horario no disponible'}</Text>
+          </View>
         </View>
 
         <View style={styles.descriptionCard}>
@@ -85,35 +143,23 @@ const RestauranteDetalle = ({ restaurante, onBack }) => {
           </Text>
         </View>
 
-        <View style={styles.reseñasContainer}>
+        <View style={styles.descriptionCard}>
+          <Text style={styles.sectionTitle}>Menú</Text>
+          <Text style={styles.descriptionText}>
+            {restaurante.menu || 'Menú no disponible'}
+          </Text>
+        </View>
+
+        <View style={styles.resenasSection}>
           <Text style={styles.sectionTitle}>Reseñas</Text>
-          
-          <View style={styles.escribirReseña}>
-            <Text style={styles.escribirReseñaTitle}>Escribir una reseña</Text>
-            
-            <View style={styles.starsContainer}>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <FontAwesome 
-                  key={star}
-                  name="star-o"
-                  size={30}
-                  color="#FFD700"
-                  style={styles.star}
-                />
-              ))}
-            </View>
-
-            <TextInput
-              style={styles.comentarioInput}
-              placeholder="Escribe tu comentario aquí"
-              multiline={true}
-              numberOfLines={4}
-            />
-
-            <TouchableOpacity style={styles.publicarButton}>
-              <Text style={styles.publicarButtonText}>Publicar reseña</Text>
-            </TouchableOpacity>
-          </View>
+          <FormularioResenas 
+            onSubmit={agregarResena}
+            resenas={resenas}
+            onEditar={handleEditarResena}
+            onEliminar={handleEliminarResena}
+            resenaEnEdicion={resenaEnEdicion}
+            setResenaEnEdicion={setResenaEnEdicion}
+          />
         </View>
       </View>
     </ScrollView>
@@ -127,27 +173,24 @@ const styles = StyleSheet.create({
   },
   headerImage: {
     width: '100%',
-    height: 250,
+    height: 300,
     resizeMode: 'cover',
   },
   backButton: {
     position: 'absolute',
     top: 40,
     left: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
+    width: 40,
+    height: 40,
     borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 1,
-  },
-  backText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '500',
   },
   contentContainer: {
     padding: 20,
-    marginTop: -30,
+    marginTop: -40,
     backgroundColor: '#fff',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
@@ -163,7 +206,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   tag: {
-    backgroundColor: '#E74C3C',
+    backgroundColor: '#3498DB',
     paddingHorizontal: 15,
     paddingVertical: 5,
     borderRadius: 20,
@@ -192,20 +235,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-  iconContainer: {
-    width: 40,
-    alignItems: 'center',
-  },
-  infoLabel: {
-    width: 80,
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#2C3E50',
-  },
   infoText: {
-    flex: 1,
+    marginLeft: 15,
     fontSize: 16,
-    color: '#34495E',
+    color: '#2C3E50',
+    flex: 1,
   },
   descriptionCard: {
     backgroundColor: '#f8f9fa',
@@ -232,11 +266,14 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: '#34495E',
   },
-  reseñasContainer: {
+  resenasSection: {
+    marginTop: 20,
+  },
+  resenaCard: {
     backgroundColor: '#f8f9fa',
     borderRadius: 15,
     padding: 15,
-    marginBottom: 20,
+    marginTop: 15,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: {
@@ -246,43 +283,27 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
   },
-  escribirReseña: {
-    marginTop: 10,
-  },
-  escribirReseñaTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+  resenaHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 10,
+  },
+  resenaUsuario: {
+    fontSize: 16,
+    fontWeight: 'bold',
     color: '#2C3E50',
   },
-  starsContainer: {
+  estrellas: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 15,
   },
-  star: {
-    marginHorizontal: 5,
+  estrella: {
+    marginLeft: 4,
   },
-  comentarioInput: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 10,
-    minHeight: 100,
-    textAlignVertical: 'top',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginBottom: 15,
-  },
-  publicarButton: {
-    backgroundColor: '#2C3E50',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  publicarButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+  resenaTexto: {
+    fontSize: 14,
+    color: '#34495E',
+    lineHeight: 20,
   }
 });
 
