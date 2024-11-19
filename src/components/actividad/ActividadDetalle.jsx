@@ -6,21 +6,25 @@ import {
   StyleSheet, 
   ScrollView, 
   TouchableOpacity,
-  Linking 
+  Linking,
+  Alert
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import FormularioResenas from '../resenas/FormularioResenas';
-import { collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from "../../firebase/firebase";
+import { auth } from "../../firebase/firebase";
 
 const ActividadDetalle = ({ actividad, onBack }) => {
   const [resenas, setResenas] = useState([]);
+  const [resenaEnEdicion, setResenaEnEdicion] = useState(null);
 
   useEffect(() => {
     cargarResenas();
   }, []);
 
   const cargarResenas = async () => {
+    console.log('Cargando reseñas para actividad:', actividad.id);
     try {
       const q = query(
         collection(db, 'resenas'),
@@ -31,6 +35,7 @@ const ActividadDetalle = ({ actividad, onBack }) => {
         id: doc.id,
         ...doc.data()
       }));
+      console.log('Reseñas cargadas:', resenasData);
       setResenas(resenasData);
     } catch (error) {
       console.error('Error al cargar reseñas:', error);
@@ -44,13 +49,41 @@ const ActividadDetalle = ({ actividad, onBack }) => {
         texto: nuevaResena.texto,
         calificacion: nuevaResena.calificacion,
         fecha: serverTimestamp(),
-        usuario: 'Usuario Anónimo'
+        usuario: auth.currentUser.email
       };
 
       await addDoc(collection(db, 'resenas'), resenaDoc);
       cargarResenas();
     } catch (error) {
       console.error('Error al agregar reseña:', error);
+    }
+  };
+
+  const handleEditarResena = async (resenaEditada) => {
+    try {
+      const docRef = doc(db, 'resenas', resenaEditada.id);
+      await updateDoc(docRef, {
+        calificacion: resenaEditada.calificacion,
+        texto: resenaEditada.texto,
+        fechaEdicion: serverTimestamp()
+      });
+      
+      await cargarResenas();
+    } catch (error) {
+      console.error('Error al editar reseña:', error);
+      Alert.alert('Error', 'No se pudo editar la reseña');
+    }
+  };
+
+  const handleEliminarResena = async (resenaId) => {
+    try {
+      const docRef = doc(db, 'resenas', resenaId);
+      await deleteDoc(docRef);
+      await cargarResenas();
+      Alert.alert('Éxito', 'Reseña eliminada correctamente');
+    } catch (error) {
+      console.error('Error al eliminar reseña:', error);
+      Alert.alert('Error', 'No se pudo eliminar la reseña');
     }
   };
 
@@ -100,27 +133,14 @@ const ActividadDetalle = ({ actividad, onBack }) => {
 
         <View style={styles.resenasSection}>
           <Text style={styles.sectionTitle}>Reseñas</Text>
-          <FormularioResenas onSubmit={agregarResena} />
-          
-          {resenas.map((resena) => (
-            <View key={resena.id} style={styles.resenaCard}>
-              <View style={styles.resenaHeader}>
-                <Text style={styles.resenaUsuario}>{resena.usuario}</Text>
-                <View style={styles.estrellas}>
-                  {[...Array(5)].map((_, index) => (
-                    <FontAwesome
-                      key={index}
-                      name={index < resena.calificacion ? "star" : "star-o"}
-                      size={16}
-                      color="#FFD700"
-                      style={styles.estrella}
-                    />
-                  ))}
-                </View>
-              </View>
-              <Text style={styles.resenaTexto}>{resena.texto}</Text>
-            </View>
-          ))}
+          <FormularioResenas 
+            onSubmit={agregarResena}
+            resenas={resenas}
+            onEditar={handleEditarResena}
+            onEliminar={handleEliminarResena}
+            resenaEnEdicion={resenaEnEdicion}
+            setResenaEnEdicion={setResenaEnEdicion}
+          />
         </View>
       </View>
     </ScrollView>
