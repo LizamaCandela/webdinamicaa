@@ -84,33 +84,7 @@ const Ajustes = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Sección de Información */}
-      <View style={[styles.section, { backgroundColor: modoOscuro ? '#2d2d2d' : '#fff' }]}>
-        <Text style={[styles.sectionTitle, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Información</Text>
-        <TouchableOpacity style={styles.option}>
-          <View style={styles.optionLeft}>
-            <Ionicons name="information-circle-outline" size={24} color={modoOscuro ? '#fff' : '#2C3E50'} />
-            <Text style={[styles.optionText, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Acerca de</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={24} color="#95a5a6" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.option}>
-          <View style={styles.optionLeft}>
-            <Ionicons name="document-text-outline" size={24} color={modoOscuro ? '#fff' : '#2C3E50'} />
-            <Text style={[styles.optionText, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Términos y Condiciones</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={24} color="#95a5a6" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.option}>
-          <View style={styles.optionLeft}>
-            <Ionicons name="shield-checkmark-outline" size={24} color={modoOscuro ? '#fff' : '#2C3E50'} />
-            <Text style={[styles.optionText, { color: modoOscuro ? '#fff' : '#2C3E50' }]}>Política de Privacidad</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={24} color="#95a5a6" />
-        </TouchableOpacity>
-      </View>
+     
     </ScrollView>
   );
 };

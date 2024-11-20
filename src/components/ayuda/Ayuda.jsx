@@ -90,10 +90,7 @@ const Ayuda = () => {
               <Text style={styles.bulletText}>Idioma: Cambia el idioma de la aplicación</Text>
             </View>
 
-            <View style={styles.bulletPoint}>
-              <Ionicons name="information-circle-outline" size={20} color="#34495E" />
-              <Text style={styles.bulletText}>Información: Accede a términos, condiciones y políticas de privacidad</Text>
-            </View>
+            
           </View>
         </View>
 
