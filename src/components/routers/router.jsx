@@ -2,9 +2,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Login from '../login/Inicio';
 import Registro from '../login/Registro';
-import MapComponent from '../Map/Map';
+import MapComponent from '../mapa/Mapa';
+import Actividad from '../actividad/Actividad.jsx';
+import Hotel from '../hotel/Hotel.jsx';
+import Restaurantes from '../restaurantes/Restaurante.jsx';
 
-console.log('Rutas disponibles:', ['Login', 'Registro', 'MapComponent']); 
+console.log('Rutas disponibles:', ['Login', 'Registro', 'MapComponent', 'Actividad', 'Hotel', 'Restaurantes']); 
 
 const Stack = createStackNavigator();
 
@@ -28,6 +31,18 @@ function Routing() {
                 <Stack.Screen 
                     name="MapComponent" 
                     component={MapComponent} 
+                />
+                <Stack.Screen 
+                    name="Actividad" 
+                    component={Actividad} 
+                />
+                <Stack.Screen 
+                    name="Hotel" 
+                    component={Hotel} 
+                />
+                <Stack.Screen 
+                    name="Restaurantes" 
+                    component={Restaurantes} 
                 />
             </Stack.Navigator>
         </NavigationContainer>

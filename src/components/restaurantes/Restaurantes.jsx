@@ -52,7 +52,7 @@ const municipiosNeuquen = [
   "Zapala"
 ];
 
-const Restaurantes = () => {
+const Restaurantes = ({ route }) => {
   const [restaurantes, setRestaurantes] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -62,6 +62,14 @@ const Restaurantes = () => {
   useEffect(() => {
     cargarRestaurantes();
   }, [municipioSeleccionado]);
+
+  useEffect(() => {
+    if (route?.params?.municipio) {
+      console.log('Municipio recibido en Restaurantes:', route.params.municipio); // Debug
+      setMunicipioSeleccionado(route.params.municipio);
+      cargarRestaurantes(); // Asegúrate de que esta función se llame después de establecer el municipio
+    }
+  }, [route?.params?.municipio]);
 
   const cargarRestaurantes = async () => {
     if (municipioSeleccionado === "Seleccione un municipio") {

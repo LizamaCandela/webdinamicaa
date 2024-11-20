@@ -54,7 +54,7 @@ const municipiosNeuquen = [
   "Zapala"
 ];
 
-const Actividad = () => {
+const Actividad = ({ route }) => {
   const [actividades, setActividades] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -65,6 +65,14 @@ const Actividad = () => {
   useEffect(() => {
     cargarActividades();
   }, [municipioSeleccionado]);
+
+  useEffect(() => {
+    if (route?.params?.municipio) {
+      console.log('Municipio recibido en Actividad:', route.params.municipio);
+      setMunicipioSeleccionado(route.params.municipio);
+      cargarActividades();
+    }
+  }, [route?.params?.municipio]);
 
   const cargarActividades = async () => {
     if (municipioSeleccionado === "Seleccione un municipio") {

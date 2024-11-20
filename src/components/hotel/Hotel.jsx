@@ -53,7 +53,7 @@ const municipiosNeuquen = [
   "Vista Alegre",
   "Zapala"
 ];
-const Hotel = () => {
+const Hotel = ({ route }) => {
   const [hoteles, setHoteles] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -64,6 +64,14 @@ const Hotel = () => {
   useEffect(() => {
     cargarHoteles();
   }, [municipioSeleccionado]);
+
+  useEffect(() => {
+    if (route?.params?.municipio) {
+      console.log('Municipio recibido en Hotel:', route.params.municipio); // Debug
+      setMunicipioSeleccionado(route.params.municipio);
+      cargarHoteles(); // Asegúrate de que esta función se llame después de establecer el municipio
+    }
+  }, [route?.params?.municipio]);
 
   const cargarHoteles = async () => {
     if (municipioSeleccionado === "Seleccione un municipio") {
