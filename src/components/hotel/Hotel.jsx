@@ -17,13 +17,13 @@ import HotelDetalle from './HotelDetalle';
 
 const municipiosNeuquen = [
   "Seleccione un municipio",
+  "Neuquén Capital",
   "Aluminé",
   "Caviahue-Copahue",
   "Chos Malal",
   "Cultral-Có",
   "Junín de los Andes",
   "Loncopué",
-  "Neuquén Capital",
   "Picún Leufú",
   "Piedra del Águila",
   "Plaza Huincul",
