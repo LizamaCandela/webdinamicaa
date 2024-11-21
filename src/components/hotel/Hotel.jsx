@@ -18,6 +18,8 @@ import HotelDetalle from './HotelDetalle';
 const municipiosNeuquen = [
   "Seleccione un municipio",
   "Neuquén Capital",
+  "San Martín de los Andes",
+  "Villa La Angostura",
   "Aluminé",
   "Caviahue-Copahue",
   "Chos Malal",
@@ -28,10 +30,8 @@ const municipiosNeuquen = [
   "Piedra del Águila",
   "Plaza Huincul",
   "Plottier",
-  "San Martín de los Andes",
   "Senillosa",
   "Villa El Chocón",
-  "Villa La Angostura",
   "Villa Pehuenia",
   "Zapala"
 ];
